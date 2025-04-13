@@ -16,7 +16,7 @@
       background-attachment: fixed;
       background-position: center;
       font-family: 'Quattrocento', serif;
-      padding-top: 100px;
+      padding-top: 0px;
     }
 
     body::before {
@@ -30,7 +30,7 @@
     .navbar {
     background-color: #2c6b2f;
     color: white;
-    position: fixed;
+    position: relative;
     top: 0;
     left: 0;
     width: 100%;
@@ -187,8 +187,8 @@
       </a>
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">FAQs</a></li>
+          <li class="nav-item"><a class="nav-link" href=" Home.php">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="FAQs.php">FAQs</a></li>
           <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
           <li class="nav-item"><a class="nav-link" href="contacts.php">Contact</a></li>
         </ul>

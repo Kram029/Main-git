@@ -199,7 +199,7 @@
       </a>
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="Home.php">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="#">FAQs</a></li>
           <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
           <li class="nav-item"><a class="nav-link" href="contacts.php">Contact</a></li>
@@ -261,9 +261,9 @@
 
   <footer class="footer">
     <div class="footer-links">
-      <a href="privacy-statement.php">Privacy Statement</a> |
-      <a href="terms-and-conditions.php">Terms and Condition</a> |
-      <a href="privacy-policy.php">Privacy Policy</a>
+      <a href="privacy-statement.html">Privacy Statement</a> |
+      <a href="terms-and-conditions.html">Terms and Condition</a> |
+      <a href="privacy-policy.html">Privacy Policy</a>
     </div>
     <div class="copyright">
       @2025 EcoTrack. All Rights Reserved.
