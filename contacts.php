@@ -261,9 +261,9 @@
 
   <footer class="footer">
     <div class="footer-links">
-      <a href="privacy-statement.html">Privacy Statement</a> |
-      <a href="terms-and-conditions.html">Terms and Condition</a> |
-      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="privacy-statement.php">Privacy Statement</a> |
+      <a href="terms-and-conditions.php">Terms and Condition</a> |
+      <a href="privacy-policy.php">Privacy Policy</a>
     </div>
     <div class="copyright">
       @2025 EcoTrack. All Rights Reserved.
