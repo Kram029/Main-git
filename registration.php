@@ -38,9 +38,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 
   //Street
-  if (!preg_match("/^[A-Za-z0-9\s,]{3,}$/", $street)) {
-    $xstreet = "Street must be at least 3 characters and contain only letters, numbers, spaces, and commas.";
-  }
+  if (!empty($street) && !preg_match("/^[A-Za-z0-9\s,]{3,}$/", $street)) {
+  $xstreet = "Street must be at least 3 characters and contain only letters, numbers, spaces, and commas.";
+}
 
   //Username
   if (!preg_match("/^\w{6,20}$/", $username)) {
