@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EcoTrack - Contact</title>
+  <title>EcoTrack</title>
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
 
   <style>
     body {
-      background-image: url('truck.png');
+      background-image: url('background.png');
       background-size: cover;
       background-repeat: no-repeat;
       background-attachment: fixed;
       background-position: center;
-      font-family: 'Quattrocento', serif;
+      font-family: Arial, sans-serif;
     }
 
     body::before {
@@ -201,8 +201,8 @@
         <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="#">FAQs</a></li>
-          <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
-          <li class="nav-item"><a class="nav-link" href="contacts.php">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">News</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
         </ul>
       </div>
     </div>
