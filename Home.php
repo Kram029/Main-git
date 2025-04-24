@@ -2,8 +2,12 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>EcoTrack Login</title>
-  <link rel="stylesheet" href="style.css"> <!-- Optional: remove if keeping styles inline -->
+  
+</head>
+
+
   <style>
     /* --- Navbar Styles --- */
     .navbar {
@@ -61,7 +65,7 @@
     .banner {
       width: 100%;
       height: 680px;
-      background-image: url('truck1.png');
+      background-image: url('truck1.webp');
       background-size: cover;
       background-position: center;
     }
@@ -190,35 +194,86 @@
       min-width: 180px;
       box-sizing: border-box;
     }
-    .step1 h4 { background-color: #ec7000; color: white; padding: 5px; }
-    .step2 h4 { background-color: #f99300; color: white; padding: 5px; }
-    .step3 h4 { background-color: #e65b00; color: white; padding: 5px; }
-    .step4 h4 { background-color: #d04900; color: white; padding: 5px; }
+    .step1 h4 { background-color:rgb(161, 79, 8); color: white; padding: 5px; }
+    .step2 h4 { background-color:rgb(161, 79, 8); color: white; padding: 5px; }
+    .step3 h4 { background-color:rgb(161, 79, 8); color: white; padding: 5px; }
+    .step4 h4 { background-color:rgb(161, 79, 8); color: white; padding: 5px; }
+
+    @media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .navbar-brand {
+    margin-bottom: 10px;
+  }
+
+  .navbar-nav {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .navbar-nav .nav-link {
+    margin: 0;
+  }
+
+  .banner {
+    height: 400px;
+    background-position: center;
+  }
+
+  .welcome-title {
+    top: 15%;
+    width: 90%;
+    left: 5%;
+    transform: none;
+    font-size: 24px;
+  }
+
+  .login-box {
+    width: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .intro {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .intro p {
+    max-width: 100%;
+    font-size: 14px;
+  }
+
+  .side-img {
+    max-width: 50%;
+    margin-top: 20px;
+  }
+
+  .steps {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .step {
+    flex: 0 0 80%;
+    margin-bottom: 20px;
+  }
+}
+.navbar-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 
 
     /* --- Footer --- */
-    footer {
-      background-color:  #2c6b2f; /* Dark background for the footer */
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .footer a {
-      font-weight: 600;
-      color: #ffd700;
-      text-decoration: underline;
-      margin: 0 10px;
-    }
-
-    .footer a:hover {
-      color: #fff;
-    }
-
-    .footer .copyright {
-      margin-top: 10px;
-      font-size: 0.9rem;
-    }
+    
   </style>
 </head>
 <body>
@@ -239,9 +294,11 @@
     <button>Sign In</button>
     <div class="login-links">
       <a href="registration.php">Register</a>
-      <a href="#">Forget Password</a>
+      <a href="#" onclick="openModal()">Forget Password</a>
     </div>
   </div>
+
+  
 
   <!-- CONTENT -->
   <section class="content">
@@ -295,19 +352,10 @@
     }
   </script>
 
- <!-- Footer -->
- <div class="black-line"></div>
-  
-  <footer class="footer">
-    <div class="footer-links">
-      <a href="privacy_statement.php">Privacy Statement</a> |
-      <a href="terms_and_condition.php">Terms and Condition</a> |
-      <a href="privacy_policy.php">Privacy Policy</a>
-    </div>
-    <div class="copyright">
-      &copy; 2025 EcoTrack. All Rights Reserved.
-    </div>
-  </footer>
+  <!-- FOOTER -->
+  <?php include 'footer.php'; ?>
+
+ 
 
 </body>
 </html>
