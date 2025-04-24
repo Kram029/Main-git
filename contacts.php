@@ -15,7 +15,7 @@
       background-repeat: no-repeat;
       background-attachment: fixed;
       background-position: center;
-      font-family: Arial, sans-serif;
+      font-family: 'Quattrocento', serif;
     }
 
     body::before {
