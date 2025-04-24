@@ -149,17 +149,27 @@
     }
 
 
-    .footer {
-      background-color: #f5f5f5;
-      padding: 20px;
+    footer {
+      background-color:  #2c6b2f; /* Dark background for the footer */
+      color: white;
+      padding: 1rem;
       text-align: center;
-      font-size: 20px;
     }
 
     .footer a {
-      color: #0000ee;
-      text-decoration: none;
-      font-weight: bold;
+      font-weight: 600;
+      color: #ffd700;
+      text-decoration: underline;
+      margin: 0 10px;
+    }
+
+    .footer a:hover {
+      color: #fff;
+    }
+
+    .footer .copyright {
+      margin-top: 10px;
+      font-size: 0.9rem;
     }
 
     .social-icons {
@@ -178,10 +188,6 @@
       font-weight: bold;
       text-align: center;
       margin-left: 20px;
-    }
-
-    .footer-links {
-      margin-top: 10px;
     }
   </style>
 </head>
@@ -257,16 +263,16 @@
   </div>
 
   <!-- Footer -->
-  <div class="black-line"></div>
-
+ <div class="black-line"></div>
+  
   <footer class="footer">
     <div class="footer-links">
-      <a href="privacy-statement.html">Privacy Statement</a> |
-      <a href="terms-and-conditions.html">Terms and Condition</a> |
-      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="privacy_statement.php">Privacy Statement</a> |
+      <a href="terms_and_condition.php">Terms and Condition</a> |
+      <a href="privacy_policy.php">Privacy Policy</a>
     </div>
     <div class="copyright">
-      @2025 EcoTrack. All Rights Reserved.
+      &copy; 2025 EcoTrack. All Rights Reserved.
     </div>
   </footer>
 
