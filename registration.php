@@ -65,59 +65,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <title>EcoTrack Registration</title>
   <style>
     body {
-      font-family: 'Quattrocento', serif;
+      font-family: Arial, sans-serif;
       background: #fff;
       margin: 0;
-    }
-
-    .navbar {
-      background-color: #2c6b2f;
-      color: white;
-      display: flex;
-      align-items: center;
-      padding: 10px 20px;
-      justify-content: space-between;
-    }
-
-    .navbar-brand {
-      display: flex;
-      align-items: center;
-    }
-
-    .navbar-brand img {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      margin-left: 30px;
-    }
-
-    .main-title {
-      font-weight: bold;
-      font-size: 25px;
-      color: #ffd700;
-    }
-
-    .subtitle {
-      font-size: 20px;
-      color: white;
-      margin-top: -3px;
-    }
-
-    .navbar-nav {
-      display: flex;
-    }
-
-    .navbar-nav .nav-link {
-      color: white;
-      font-weight: 800;
-      margin-right: 40px;
-      text-decoration: none;
     }
 
     .yellow-line {
@@ -178,7 +128,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     label {
       display: block;
       margin-top: 15px;
-      font-weight: bold;
+     
     }
 
     input, select {
@@ -230,6 +180,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
+
+<!-- Include Navbar -->
+<?php include 'navbar.php'; ?>
+  
 <!-- Navbar -->
 <div class="navbar">
   <div class="navbar-brand">
@@ -247,7 +201,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </div>
 </div>
 
-<div class="yellow-line"></div>
 
 <!-- Reg Form -->
 <div class="form-container">
@@ -309,10 +262,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select name="barangay"><option>Barangay</option></select>
       </div>
       <input type="text" name="street" placeholder="Street"
-      value="<?= htmlspecialchars($street) ?>"
-      pattern="[A-Za-z0-9\s,]{3,}"
-      title="<?= $xstreet ?: 'Only letters, numbers, spaces, and commas are allowed.' ?>"
-      style="<?= $xstreet ? 'border:1px solid red;' : '' ?>">
+        value="<?= htmlspecialchars($street) ?>"
+        pattern="[A-Za-z0-9\s,]{3,}"
+        title="<?= $xstreet ?: 'Only letters, numbers, spaces, and commas are allowed.' ?>"
+        style="<?= $xstreet ? 'border:1px solid red;' : '' ?>">
+
 
       <label>Create Username</label>
       <input type="text" name="username"
