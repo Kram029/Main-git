@@ -28,9 +28,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   // Validations
   $combinedName = implode('', $fullname);
-  if (!preg_match("/^[A-Za-z]+$/", $combinedName)) {
-    $xfullname = "Please use letters only. No spaces, numbers or special characters allowed in the full name.";
-  }
+  if (!preg_match("/^[A-Za-z\s]+$/", $combinedName)) {
+    $xfullname = "Please use letters and spaces only. No numbers or special characters allowed in the full name.";
+  }  
 
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $xemail = "Please enter a valid email address.";
@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ");
 
-      $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+      $hashed_password = $password; // Storing raw password
 
       $stmt->bind_param(
         "sssssssssssss",
@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       );
 
       if ($stmt->execute()) {
-        echo "<script>alert('Registration successful!'); window.location='login.php';</script>";
+        echo "<script>alert('Registration successful!'); window.location='Home.php';</script>";
       } else {
         echo "Error: " . $stmt->error;
       }
