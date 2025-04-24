@@ -15,7 +15,7 @@
       background-repeat: no-repeat;
       background-attachment: fixed;
       background-position: center;
-      font-family: 'Quattrocento', serif;
+      font-family: Arial, sans-serif;
     }
 
     body::before {
@@ -207,8 +207,8 @@
         <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link" href="Home.php">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="#">FAQs</a></li>
-          <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
-          <li class="nav-item"><a class="nav-link" href="contacts.php">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">News</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
         </ul>
       </div>
     </div>

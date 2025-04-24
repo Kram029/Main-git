@@ -10,7 +10,7 @@
 
   <style>
     body {
-      background-image: url('background.jpg');
+      background-image: url('truck1.png');
       background-size: cover;
       background-repeat: no-repeat;
       background-attachment: fixed;
@@ -18,6 +18,7 @@
       font-family: 'Quattrocento', serif;
       padding-top: 0px;
     }
+      
 
     body::before {
       content: "";

@@ -84,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       content: "";
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: url('background.jpg') no-repeat center center fixed;
+      background: url('images/background.jpg') no-repeat center center fixed;
       background-size: cover;
       opacity: 0.3;
       z-index: -1;
@@ -180,16 +180,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
+
 <!-- Include Navbar -->
 <?php include 'navbar.php'; ?>
-
+  
+<!-- Navbar -->
+<div class="navbar">
+  <div class="navbar-brand">
+    <img src="images/logo.png" alt="EcoTrack Logo">
+    <div class="brand-text">
+      <div class="main-title">EcoTrack</div>
+      <div class="subtitle">Smarter Waste, Greener Cities</div>
+    </div>
+  </div>
+  <div class="navbar-nav">
+    <a class="nav-link" href="#">Home</a>
+    <a class="nav-link" href="#">FAQs</a>
+    <a class="nav-link" href="#">News</a>
+    <a class="nav-link" href="#">Contact</a>
+  </div>
+</div>
 
 
 <!-- Reg Form -->
 <div class="form-container">
   <div class="form-box">
     <div class="logo-bar">
-      <img src="ecotrack.png" alt="EcoTrack">
+      <img src="images/ecotrack.png" alt="EcoTrack">
     </div>
 
     <h2>EcoTrackers Registration Form</h2>
@@ -249,6 +266,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         pattern="[A-Za-z0-9\s,]{3,}"
         title="<?= $xstreet ?: 'Only letters, numbers, spaces, and commas are allowed.' ?>"
         style="<?= $xstreet ? 'border:1px solid red;' : '' ?>">
+
 
       <label>Create Username</label>
       <input type="text" name="username"
