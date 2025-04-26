@@ -19,7 +19,6 @@ $fullname = [
 $email = $contact = $street = $username = $password = $confirm_password = '';
 $region = $province = $city = $barangay = '';
 
-//dropdown
 $regions = [];
 $provinces = [];
 $cities = [];
@@ -38,7 +37,7 @@ if (isset($_POST['barangay']) && $_POST['barangay'] !== '') {
     $barangay = $_POST['barangay'];
 }
 
-//loading region
+// Load region
 $res = $conn->query("SELECT * FROM table_region ORDER BY region_name ASC");
 if ($res) {
     while ($row = $res->fetch_assoc()) {
@@ -49,7 +48,7 @@ if ($res) {
     }
 }
 
-//loading province
+// Load province
 if ($region) {
   $stmt = $conn->prepare("SELECT * FROM table_province WHERE region_id = ? ORDER BY province_name ASC");
   $stmt->bind_param("i", $region);
@@ -64,7 +63,7 @@ if ($region) {
   $stmt->close();
 }
 
-//loading city/municipality
+// Load city
 if ($province) {
   $stmt = $conn->prepare("SELECT * FROM table_municipality WHERE province_id = ? ORDER BY municipality_name ASC");
   $stmt->bind_param("i", $province);
@@ -79,7 +78,7 @@ if ($province) {
   $stmt->close();
 }
 
-//loading barangay
+// Load barangay
 if ($city) {
   $stmt = $conn->prepare("SELECT * FROM table_barangay WHERE municipality_id = ? ORDER BY barangay_name ASC");
   $stmt->bind_param("i", $city);
@@ -94,12 +93,11 @@ if ($city) {
   $stmt->close();
 }
 
-//form submission
+// Form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   foreach ($fullname as $key => $val) {
     $fullname[$key] = trim($_POST[$key]);
   }
-
   $email = trim($_POST['email']);
   $contact = trim($_POST['contact']);
   $street = trim($_POST['street']);
@@ -107,38 +105,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $password = trim($_POST['password']);
   $confirm_password = trim($_POST['confirm_password']);
   
-  // Validations
   $combinedName = implode('', $fullname);
   if (!preg_match("/^[A-Za-z]+$/", $combinedName)) {
-    $xfullname = "Please use letters only. No spaces, numbers or special characters allowed in the full name.";
+    $xfullname = "Please use letters only. No spaces, numbers, or special characters allowed.";
   }
 
-  // Email
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $xemail = "Please enter a valid email address.";
   }
 
-  // Contact Number
   if (!preg_match("/^09\d{9}$/", $contact)) {
-    $xcontact = "Contact must start with '09', only 11 digits in total, and no letters.";
+    $xcontact = "Contact must start with '09', only 11 digits in total.";
   }
 
-  // Street
   if (!empty($street) && !preg_match("/^[A-Za-z0-9\s,]{3,}$/", $street)) {
-    $xstreet = "Street must be at least 3 characters and contain only letters, numbers, spaces, and commas.";
+    $xstreet = "Street must be at least 3 characters, letters, numbers, spaces, and commas only.";
   }
 
-  // Username
   if (!preg_match("/^\w{6,20}$/", $username)) {
-    $xusername = "Username must be 6-20 characters and can include letters, numbers, and underscores.";
+    $xusername = "Username must be 6-20 characters and can only include letters, numbers, and underscores.";
   }
 
-  // Password
   if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/", $password)) {
-    $xpassword = "Password must be at least 8 characters with uppercase, lowercase, number, and special character.";
+    $xpassword = "Password must be at least 8 characters, with uppercase, lowercase, number, and symbol.";
   }
 
-  // Confirm Password
   if ($confirm_password !== $password) {
     $xconfirm = "Passwords do not match.";
   }
@@ -146,76 +137,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>EcoTrack Registration</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
       font-family: 'Quattrocento', serif;
       background: #fff;
-      margin: 0;
     }
-
     .navbar {
       background-color: #2c6b2f;
-      color: white;
-      display: flex;
-      align-items: center;
-      padding: 10px 20px;
-      justify-content: space-between;
     }
-
-    .navbar-brand {
-      display: flex;
-      align-items: center;
-    }
-
     .navbar-brand img {
       width: 80px;
       height: 80px;
       object-fit: cover;
       border-radius: 50%;
     }
-
     .brand-text {
-      display: flex;
-      flex-direction: column;
-      margin-left: 30px;
+      margin-left: 15px;
+      color: white;
     }
-
-    .main-title {
+    .brand-text .main-title {
       font-weight: bold;
-      font-size: 25px;
+      font-size: 1.5rem;
       color: #ffd700;
     }
-
-    .subtitle {
-      font-size: 20px;
-      color: white;
-      margin-top: -3px;
-    }
-
-    .navbar-nav {
-      display: flex;
-    }
-
-    .navbar-nav .nav-link {
-      color: white;
-      font-weight: 800;
-      margin-right: 40px;
-      text-decoration: none;
-    }
-
     .yellow-line {
       height: 5px;
       background-color: yellow;
     }
-
     .form-container {
       position: relative;
-      font-family: Arial, sans-serif;
+      padding: 2rem 0;
     }
-
     .form-container::before {
       content: "";
       position: absolute;
@@ -225,251 +183,170 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       opacity: 0.3;
       z-index: -1;
     }
-
     .form-box {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       max-width: 900px;
-      margin: 0 auto;
+      margin: auto;
       border-radius: 10px;
-      overflow: hidden;
+      padding: 2rem;
     }
-
     .logo-bar {
       background-color: #2d6a2f;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px 0;
+      text-align: center;
+      padding: 1rem 0;
     }
-
     .logo-bar img {
-      width: 50%;
-      max-width: 300px;
-      display: block;
-    }
-
-    h2 {
-      text-align: center;
-      color: #000;
-      border-bottom: 2px solid #333;
-      padding-bottom: 10px;
-      padding-top: 20px;
-      margin: 0 20px;
-    }
-
-    form {
-      padding: 0 20px 20px;
-    }
-
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-    input, select {
+      max-width: 250px;
       width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
+      height: auto;
     }
-
-    .note {
-      font-size: 12px;
-      color: red;
-    }
-
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 10px;
-      background: #2d6a2f;
-      color: white;
-      border: none;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 12px;
-      padding: 15px;
-      background: #f1f1f1;
-    }
-
-    .flex-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .flex-row > * {
-      flex: 1;
-    }
-
-    .flex-half {
-      flex: 0.5;
+    .invalid-feedback {
+      display: block;
     }
   </style>
 </head>
 <body>
 
-<!-- Navbar -->
-<div class="navbar">
-  <div class="navbar-brand">
-    <img src="images/logo.png" alt="EcoTrack Logo">
-    <div class="brand-text">
-      <div class="main-title">EcoTrack</div>
-      <div class="subtitle">Smarter Waste, Greener Cities</div>
-    </div>
+
+<nav class="navbar" role="navigation">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img src="images/logo.png" alt="EcoTrack Logo">
+      <div class="brand-text">
+        <div class="main-title">EcoTrack</div>
+        <div class="subtitle">Smarter Waste, Greener Cities</div>
+      </div>
+    </a>
+
+    <ul class="navbar-nav flex-row ms-auto">
+      <li class="nav-item me-3"><a class="nav-link text-white fw-bold" href="#">Home</a></li>
+      <li class="nav-item me-3"><a class="nav-link text-white fw-bold" href="#">FAQs</a></li>
+      <li class="nav-item me-3"><a class="nav-link text-white fw-bold" href="#">News</a></li>
+      <li class="nav-item"><a class="nav-link text-white fw-bold" href="#">Contact</a></li>
+    </ul>
   </div>
-  <div class="navbar-nav">
-    <a class="nav-link" href="#">Home</a>
-    <a class="nav-link" href="#">FAQs</a>
-    <a class="nav-link" href="#">News</a>
-    <a class="nav-link" href="#">Contact</a>
-  </div>
-</div>
+</nav>
 
 <div class="yellow-line"></div>
 
-<!-- Reg Form -->
+<main>
 <div class="form-container">
   <div class="form-box">
     <div class="logo-bar">
-      <img src="images/ecotrack.png" alt="EcoTrack">
+      <img src="images/ecotrack.png" alt="EcoTrack Logo Main">
     </div>
 
-    <h2>EcoTrackers Registration Form</h2>
+    <h2 class="text-center my-3">EcoTrackers Registration Form</h2>
 
-    <form method="POST">
-      <label>Full Name</label>
-      <div class="flex-row">
-        <input type="text" name="first_name" placeholder="First Name"
-          value="<?= htmlspecialchars($fullname['first_name']) ?>"
-          pattern="[A-Za-z]+" required
-          title="Only letters allowed. No spaces, numbers, or special characters."
-          style="<?= $xfullname ? 'border:1px solid red;' : '' ?>">
-
-        <input type="text" name="middle_name" placeholder="Middle Name"
-          value="<?= htmlspecialchars($fullname['middle_name']) ?>"
-          pattern="[A-Za-z]*"
-          title="Only letters allowed. No spaces, numbers, or special characters."
-          style="<?= $xfullname ? 'border:1px solid red;' : '' ?>">
-
-        <input type="text" name="last_name" placeholder="Last Name"
-          value="<?= htmlspecialchars($fullname['last_name']) ?>"
-          pattern="[A-Za-z]+" required
-          title="Only letters allowed. No spaces, numbers, or special characters."
-          style="<?= $xfullname ? 'border:1px solid red;' : '' ?>">
-
-        <input type="text" name="suffix" placeholder="Suffix" class="flex-half"
-          value="<?= htmlspecialchars($fullname['suffix']) ?>"
-          pattern="[A-Za-z]*"
-          title="Only letters allowed. No spaces, numbers, or special characters."
-          style="<?= $xfullname ? 'border:1px solid red;' : '' ?>">
+    <form method="POST" class="needs-validation" novalidate>
+      
+      
+      <div class="mb-3">
+        <label class="form-label" for="first_name">Full Name</label>
+        <div class="row g-2">
+          <?php foreach (['first_name' => 'First Name', 'middle_name' => 'Middle Name', 'last_name' => 'Last Name', 'suffix' => 'Suffix'] as $key => $placeholder): ?>
+            <div class="col-md-3">
+              <input id="<?= $key ?>" type="text" name="<?= $key ?>" class="form-control <?= $xfullname ? 'is-invalid' : '' ?>" placeholder="<?= $placeholder ?>" value="<?= htmlspecialchars($fullname[$key]) ?>">
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <?php if ($xfullname): ?><div class="invalid-feedback"><?= $xfullname ?></div><?php endif; ?>
       </div>
 
-      <label>Email Address</label>
-      <input type="email" name="email" placeholder="ex. juandelacruz@gmail.com"
-        value="<?= htmlspecialchars($email) ?>"
-        title="<?= $xemail ?: 'Enter a valid email address.' ?>"
-        style="<?= $xemail ? 'border:1px solid red;' : '' ?>">
+    
+      <div class="mb-3">
+        <label for="email" class="form-label">Email Address</label>
+        <input id="email" type="email" name="email" placeholder="ex. juandelacruz@gmail.com"
+        class="form-control <?= $xemail ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($email) ?>">
+        <?php if ($xemail): ?><div class="invalid-feedback"><?= $xemail ?></div><?php endif; ?>
+      </div>
 
-      <label>Contact Number</label>
-      <input type="text" name="contact" placeholder="ex. 09xxxxxxxxx"
-        value="<?= htmlspecialchars($contact) ?>"
-        pattern="09\d{9}" required
-        title="<?= $xcontact ?: 'Starts with 09, only 11 digits in total, and no letters.' ?>"
-        style="<?= $xcontact ? 'border:1px solid red;' : '' ?>">
+     
+      <div class="mb-3">
+        <label for="contact" class="form-label">Contact Number</label>
+        <input id="contact" type="text" name="contact" placeholder="ex. 09xxxxxxxxx"
+        class="form-control <?= $xcontact ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($contact) ?>">
+        <?php if ($xcontact): ?><div class="invalid-feedback"><?= $xcontact ?></div><?php endif; ?>
+      </div>
 
-      <label>Current Address</label>
-      <label>Region</label>
-<select name="region" onchange="this.form.submit()">
-  <option value="">Select Region</option>
-  <?php foreach ($regions as $reg): ?>
-    <option value="<?= $reg['id'] ?>" <?= $reg['id'] == $region ? 'selected' : '' ?>>
-      <?= htmlspecialchars($reg['name']) ?>
-    </option>
-  <?php endforeach; ?>
-</select>
+      
+      <div class="mb-3">
+        <label for="region" class="form-label">Current Address</label>
+        
+        <select name="region" id="region" class="form-select mb-2" onchange="this.form.submit()">
+          <option value="">Select Region</option>
+          <?php foreach ($regions as $reg): ?>
+            <option value="<?= $reg['id'] ?>" <?= $reg['id'] == $region ? 'selected' : '' ?>><?= htmlspecialchars($reg['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
 
-<label>Province</label>
-<select name="province" onchange="this.form.submit()">
-  <option value="">Select Province</option>
-  <?php foreach ($provinces as $prov): ?>
-    <option value="<?= $prov['id'] ?>" <?= $prov['id'] == $province ? 'selected' : '' ?>>
-      <?= htmlspecialchars($prov['name']) ?>
-    </option>
-  <?php endforeach; ?>
-</select>
+        <select name="province" id="province" class="form-select mb-2" onchange="this.form.submit()">
+          <option value="">Select Province</option>
+          <?php foreach ($provinces as $prov): ?>
+            <option value="<?= $prov['id'] ?>" <?= $prov['id'] == $province ? 'selected' : '' ?>><?= htmlspecialchars($prov['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
 
-<label>Municipality</label>
-<select name="city" onchange="this.form.submit()">
-  <option value="">Select City / Municipality</option>
-  <?php foreach ($cities as $cty): ?>
-    <option value="<?= $cty['id'] ?>" <?= $cty['id'] == $city ? 'selected' : '' ?>>
-      <?= htmlspecialchars($cty['name']) ?>
-    </option>
-  <?php endforeach; ?>
-</select>
+        <select name="city" id="city" class="form-select mb-2" onchange="this.form.submit()">
+          <option value="">Select City / Municipality</option>
+          <?php foreach ($cities as $cty): ?>
+            <option value="<?= $cty['id'] ?>" <?= $cty['id'] == $city ? 'selected' : '' ?>><?= htmlspecialchars($cty['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
 
-<label>Barangay</label>
-<select name="barangay">
-  <option value="">Select Barangay</option>
-  <?php foreach ($barangays as $brgy): ?>
-    <option value="<?= $brgy['id'] ?>" <?= $brgy['id'] == $barangay ? 'selected' : '' ?>>
-      <?= htmlspecialchars($brgy['name']) ?>
-    </option>
-  <?php endforeach; ?>
-</select>
+        <select name="barangay" id="barangay" class="form-select mb-2">
+          <option value="">Select Barangay</option>
+          <?php foreach ($barangays as $brgy): ?>
+            <option value="<?= $brgy['id'] ?>" <?= $brgy['id'] == $barangay ? 'selected' : '' ?>><?= htmlspecialchars($brgy['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
 
-      <input type="text" name="street" placeholder="Street"
-      value="<?= htmlspecialchars($street) ?>"
-      pattern="[A-Za-z0-9\s,]{3,}"
-      title="<?= $xstreet ?: 'Only letters, numbers, spaces, and commas are allowed.' ?>"
-      style="<?= $xstreet ? 'border:1px solid red;' : '' ?>">
+        <input id="street" type="text" name="street" class="form-control mt-2 <?= $xstreet ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($street) ?>" placeholder="Street">
+        <?php if ($xstreet): ?><div class="invalid-feedback"><?= $xstreet ?></div><?php endif; ?>
+      </div>
 
-      <label>Create Username</label>
-      <input type="text" name="username"
-        value="<?= htmlspecialchars($username) ?>"
-        pattern="^\w{6,20}$"
-        title="<?= $xusername ?: '6-20 characters, letters, numbers, and underscores only.' ?>"
-        style="<?= $xusername ? 'border:1px solid red;' : '' ?>">
+      
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input id="username" type="text" name="username" placeholder="Input Username"
+        class="form-control <?= $xusername ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($username) ?>">
+        <?php if ($xusername): ?><div class="invalid-feedback"><?= $xusername ?></div><?php endif; ?>
+      </div>
 
-      <label>Create Password</label>
-      <input type="password" name="password"
-        value="<?= htmlspecialchars($password) ?>"
-        title="<?= $xpassword ?: 'At least 8 characters, with upper/lowercase, number, and symbol.' ?>"
-        style="<?= $xpassword ? 'border:1px solid red;' : '' ?>">
+   
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input id="password" type="password" name="password" placeholder="Input Password"
+        class="form-control <?= $xpassword ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($password) ?>">
+        <?php if ($xpassword): ?><div class="invalid-feedback"><?= $xpassword ?></div><?php endif; ?>
+      </div>
 
-      <label>Confirm Password</label>
-      <input type="password" name="confirm_password"
-        value="<?= htmlspecialchars($confirm_password) ?>"
-        title="<?= $xconfirm ?: 'Must match password exactly.' ?>"
-        style="<?= $xconfirm ? 'border:1px solid red;' : '' ?>">
+     
+      <div class="mb-3">
+        <label for="confirm_password" class="form-label">Confirm Password</label>
+        <input id="confirm_password" type="password" name="confirm_password" placeholder="Confirm Password"
+        class="form-control <?= $xconfirm ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($confirm_password) ?>">
+        <?php if ($xconfirm): ?><div class="invalid-feedback"><?= $xconfirm ?></div><?php endif; ?>
+      </div>
 
-      <button type="submit">SUBMIT</button>
+      <button type="submit" class="btn btn-success w-100">SUBMIT</button>
+
     </form>
   </div>
 </div>
+</main>
 
-<hr style="border: none; height: 1px; background-color: black; margin: 0; padding: 0;">
 
-<!-- Footer -->
-
-  <footer class="footer">
-      <div class="footer-links">
-        <a href="privacy-statement.php">Privacy Statement</a> |
-        <a href="terms-and-conditions.php">Terms and Condition</a> |
-        <a href="privacy-policy.php">Privacy Policy</a>
-      </div>
-      <div class="copyright">
-        @2025 EcoTrack. All Rights Reserved.
-      </div>
-    </footer>
+<footer class="footer mt-4 text-center small py-3" role="contentinfo">
+  <div class="footer-links">
+    <a href="#">Privacy Statement</a> |
+    <a href="#">Terms and Conditions</a> |
+    <a href="#">Privacy Policy</a>
+  </div>
+  <div class="mt-2">
+    ©2025 EcoTrack. All Rights Reserved.
+  </div>
+</footer>
 
 </body>
 </html>
