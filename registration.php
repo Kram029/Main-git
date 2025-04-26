@@ -1,4 +1,14 @@
 <?php
+$host = 'localhost';
+$user = 'root';
+$pass = '';
+$dbname = 'places';
+
+$conn = new mysqli($host, $user, $pass, $dbname);
+if ($conn->connect_error) {
+  die('Connection failed: ' . $conn->connect_error);
+}
+
 $xfullname = $xemail = $xcontact = $xstreet = $xusername = $xpassword = $xconfirm = '';
 $fullname = [
   'first_name' => '',
@@ -6,9 +16,85 @@ $fullname = [
   'last_name' => '',
   'suffix' => ''
 ];
-
 $email = $contact = $street = $username = $password = $confirm_password = '';
+$region = $province = $city = $barangay = '';
 
+//dropdown
+$regions = [];
+$provinces = [];
+$cities = [];
+$barangays = [];
+
+if (isset($_POST['region']) && $_POST['region'] !== '') {
+    $region = $_POST['region'];
+}
+if (isset($_POST['province']) && $_POST['province'] !== '') {
+    $province = $_POST['province'];
+}
+if (isset($_POST['city']) && $_POST['city'] !== '') {
+    $city = $_POST['city'];
+}
+if (isset($_POST['barangay']) && $_POST['barangay'] !== '') {
+    $barangay = $_POST['barangay'];
+}
+
+//loading region
+$res = $conn->query("SELECT * FROM table_region ORDER BY region_name ASC");
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $regions[] = [
+          'id' => $row['region_id'],
+          'name' => $row['region_name']
+        ];
+    }
+}
+
+//loading province
+if ($region) {
+  $stmt = $conn->prepare("SELECT * FROM table_province WHERE region_id = ? ORDER BY province_name ASC");
+  $stmt->bind_param("i", $region);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  while ($row = $res->fetch_assoc()) {
+      $provinces[] = [
+        'id' => $row['province_id'],
+        'name' => $row['province_name']
+      ];
+  }
+  $stmt->close();
+}
+
+//loading city/municipality
+if ($province) {
+  $stmt = $conn->prepare("SELECT * FROM table_municipality WHERE province_id = ? ORDER BY municipality_name ASC");
+  $stmt->bind_param("i", $province);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  while ($row = $res->fetch_assoc()) {
+      $cities[] = [
+        'id' => $row['municipality_id'],
+        'name' => $row['municipality_name']
+      ];
+  }
+  $stmt->close();
+}
+
+//loading barangay
+if ($city) {
+  $stmt = $conn->prepare("SELECT * FROM table_barangay WHERE municipality_id = ? ORDER BY barangay_name ASC");
+  $stmt->bind_param("i", $city);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  while ($row = $res->fetch_assoc()) {
+      $barangays[] = [
+        'id' => $row['barangay_id'],
+        'name' => $row['barangay_name']
+      ];
+  }
+  $stmt->close();
+}
+
+//form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   foreach ($fullname as $key => $val) {
     $fullname[$key] = trim($_POST[$key]);
@@ -20,39 +106,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $username = trim($_POST['username']);
   $password = trim($_POST['password']);
   $confirm_password = trim($_POST['confirm_password']);
-
+  
   // Validations
   $combinedName = implode('', $fullname);
   if (!preg_match("/^[A-Za-z]+$/", $combinedName)) {
     $xfullname = "Please use letters only. No spaces, numbers or special characters allowed in the full name.";
   }
 
-  //Email
+  // Email
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $xemail = "Please enter a valid email address.";
   }
 
-  //Contact Number
+  // Contact Number
   if (!preg_match("/^09\d{9}$/", $contact)) {
     $xcontact = "Contact must start with '09', only 11 digits in total, and no letters.";
   }
 
-  //Street
+  // Street
   if (!empty($street) && !preg_match("/^[A-Za-z0-9\s,]{3,}$/", $street)) {
-  $xstreet = "Street must be at least 3 characters and contain only letters, numbers, spaces, and commas.";
-}
+    $xstreet = "Street must be at least 3 characters and contain only letters, numbers, spaces, and commas.";
+  }
 
-  //Username
+  // Username
   if (!preg_match("/^\w{6,20}$/", $username)) {
     $xusername = "Username must be 6-20 characters and can include letters, numbers, and underscores.";
   }
 
-  //Password
+  // Password
   if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/", $password)) {
     $xpassword = "Password must be at least 8 characters with uppercase, lowercase, number, and special character.";
   }
 
-  //Confirm Password
+  // Confirm Password
   if ($confirm_password !== $password) {
     $xconfirm = "Passwords do not match.";
   }
@@ -300,14 +386,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         style="<?= $xcontact ? 'border:1px solid red;' : '' ?>">
 
       <label>Current Address</label>
-      <div class="flex-row">
-        <select name="region"><option>Region</option></select>
-        <select name="province"><option>Province</option></select>
-      </div>
-      <div class="flex-row" style="margin-top: 10px;">
-        <select name="city"><option>City</option></select>
-        <select name="barangay"><option>Barangay</option></select>
-      </div>
+      <label>Region</label>
+<select name="region" onchange="this.form.submit()">
+  <option value="">Select Region</option>
+  <?php foreach ($regions as $reg): ?>
+    <option value="<?= $reg['id'] ?>" <?= $reg['id'] == $region ? 'selected' : '' ?>>
+      <?= htmlspecialchars($reg['name']) ?>
+    </option>
+  <?php endforeach; ?>
+</select>
+
+<label>Province</label>
+<select name="province" onchange="this.form.submit()">
+  <option value="">Select Province</option>
+  <?php foreach ($provinces as $prov): ?>
+    <option value="<?= $prov['id'] ?>" <?= $prov['id'] == $province ? 'selected' : '' ?>>
+      <?= htmlspecialchars($prov['name']) ?>
+    </option>
+  <?php endforeach; ?>
+</select>
+
+<label>Municipality</label>
+<select name="city" onchange="this.form.submit()">
+  <option value="">Select City / Municipality</option>
+  <?php foreach ($cities as $cty): ?>
+    <option value="<?= $cty['id'] ?>" <?= $cty['id'] == $city ? 'selected' : '' ?>>
+      <?= htmlspecialchars($cty['name']) ?>
+    </option>
+  <?php endforeach; ?>
+</select>
+
+<label>Barangay</label>
+<select name="barangay">
+  <option value="">Select Barangay</option>
+  <?php foreach ($barangays as $brgy): ?>
+    <option value="<?= $brgy['id'] ?>" <?= $brgy['id'] == $barangay ? 'selected' : '' ?>>
+      <?= htmlspecialchars($brgy['name']) ?>
+    </option>
+  <?php endforeach; ?>
+</select>
+
       <input type="text" name="street" placeholder="Street"
       value="<?= htmlspecialchars($street) ?>"
       pattern="[A-Za-z0-9\s,]{3,}"
@@ -340,10 +458,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <hr style="border: none; height: 1px; background-color: black; margin: 0; padding: 0;">
 
-<footer>
-  <p>Privacy Statement | Terms and Conditions | Privacy Policy</p>
-  <p>©2025 EcoTrack. All Rights Reserved.</p>
-</footer>
+<!-- Footer -->
+
+  <footer class="footer">
+      <div class="footer-links">
+        <a href="privacy-statement.php">Privacy Statement</a> |
+        <a href="terms-and-conditions.php">Terms and Condition</a> |
+        <a href="privacy-policy.php">Privacy Policy</a>
+      </div>
+      <div class="copyright">
+        @2025 EcoTrack. All Rights Reserved.
+      </div>
+    </footer>
 
 </body>
 </html>
