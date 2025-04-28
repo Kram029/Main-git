@@ -22,7 +22,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.5);
       z-index: -1;
     }
 
@@ -206,9 +206,9 @@
       <div class="collapse navbar-collapse justify-content-end">
         <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link" href="Home.php">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">FAQs</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">News</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="FAQS.php">FAQs</a></li>
+          <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
+          <li class="nav-item"><a class="nav-link" href="contacts.php">Contact</a></li>
         </ul>
       </div>
     </div>

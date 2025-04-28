@@ -23,7 +23,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(255, 255, 255, 0.4); /* Reduced opacity for a clearer background */
+      background: rgba(255, 255, 255, 0.5); /* Reduced opacity for a clearer background */
       z-index: -1;
     }
 
