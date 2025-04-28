@@ -1,0 +1,247 @@
+/* Reset and Background */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden; /* Removes horizontal scrollbar */
+    font-family: Arial, sans-serif;
+    background: url('../pictures/bg.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Wrapper to Center Everything */
+.dashboard-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Header */
+header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0, 100, 0, 0.95);
+    color: white;
+    padding: 12px 24px;
+    box-sizing: border-box;
+}
+
+/* Logo & Branding */
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo {
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    background-color: #ffffff;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.brand-name {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #FFD700; /* Yellow */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.brand-subtitle {
+    font-size: 0.95em;
+    color: #ffffff;
+    opacity: 0.85;
+    margin-top: 2px;
+    font-style: italic;
+    letter-spacing: 0.5px;
+}
+
+
+.date-logout {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-size: 0.95em;
+}
+
+.logout-btn {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 6px 14px;
+    border-radius: 6px;
+    background-color: #004d00;
+    transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #006400;
+}
+/* Main Dashboard Container */
+.dashboard-container {
+    display: flex;
+    max-width: 1500px;
+    width: 100%;
+    margin: 30px auto;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(176, 177, 176, 0.315); /* soft transparent green */
+    backdrop-filter: blur(4px);        /* subtle blur */
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    flex-grow: 1;
+}
+
+/* Sidebar */
+aside {
+    width: 250px;
+    background-color: #f9f9f9;
+    padding: 25px 20px;
+    box-sizing: border-box;
+}
+
+aside nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+aside nav ul li {
+    margin-bottom: 20px;
+}
+
+aside nav ul li a {
+    text-decoration: none;
+    color: #006400;
+    font-weight: bold;
+    display: block;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+aside nav ul li a:hover {
+    background-color: #cce5cc;
+}
+
+aside nav ul li.active a {
+    background-color: #006400;
+    color: white;
+}
+
+/* Main Content */
+main {
+    flex: 1;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+main h2 {
+    margin-top: 0;
+    font-size: 24px;
+}
+
+.username {
+    color: #006400;
+}
+
+/* Schedule Card */
+.schedule-card {
+    background-color: #cce5cc;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    width: 800px;
+}
+
+.view-btn {
+    background-color: #228B22;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    margin-top: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.view-btn:hover {
+    background-color: #006400;
+}
+
+/* Dashboard Summary Cards */
+.dashboard-summary {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    margin-top: 40px;  /* pushes cards lower */
+    margin-bottom: 30px;
+}
+
+.main-content-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.card {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 180px;  /* wider */
+    height: 100px; /* optional, adjust if needed */
+}
+
+.card .count {
+    font-size: 3em;  /* bigger number */
+    margin: 0;
+    font-weight: bold;
+    color: #333;
+}
+
+.card.red .count {
+    color: red;
+}
+
+/* Footer */
+footer {
+    width: 100%;
+    background-color: rgba(0, 100, 0, 0.9);
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 0.9em;
+    margin-top: auto; /* Push to bottom */
+}
+
+footer a {
+    color: white;
+    text-decoration: underline;
+    margin: 0 5px;
+}
+
