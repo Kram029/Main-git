@@ -344,7 +344,6 @@
     EcoTrack leverages technology to streamline waste collection scheduling, engage users, and promote sustainability. 
     The system will optimize waste management, reduce pollution, and foster civic responsibility, supporting the transition to a cleaner, greener future nationwide.
 </p>
-
       <img src="man.png" alt="Eco Image" class="side-img">
     </div>
 
