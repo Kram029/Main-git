@@ -1,47 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EcoTrack Navbar</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footer</title>
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
 <style>
-  .footer {
-      background-color: #f5f5f5;
-      padding: 20px;
+    footer {
+      background-color:  #2c6b2f; /* Dark background for the footer */
+      color: white;
+      padding: 1rem;
       text-align: center;
-      font-size: 20px;
     }
 
     .footer a {
-      color: #0000ee;
-      text-decoration: none;
-      font-weight: bold;
+      font-weight: 600;
+      color: #ffd700;
+      text-decoration: underline;
+      margin: 0 10px;
     }
 
-    .footer-links {
+    .footer a:hover {
+      color: #fff;
+    }
+
+    .footer .copyright {
       margin-top: 10px;
-    }
-    .black-line {
-      height: 2px;
-      background-color: black;
+      font-size: 0.9rem;
     }
 
-    
-  </style>
-  <div class="black-line"></div>
+</style>
+
+</head>
+<body>
+     <!-- Footer -->
+ <div class="black-line"></div>
+  
   <footer class="footer">
     <div class="footer-links">
-      <a href="privacy-statement.html">Privacy Statement</a> |
-      <a href="terms-and-conditions.html">Terms and Condition</a> |
-      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="privacy_statement.php">Privacy Statement</a> |
+      <a href="terms_and_condition.php">Terms and Condition</a> |
+      <a href="privacy_policy.php">Privacy Policy</a>
     </div>
     <div class="copyright">
-      @2025 EcoTrack. All Rights Reserved.
+      &copy; 2025 EcoTrack. All Rights Reserved.
     </div>
   </footer>
 
+    
 </body>
 </html>
