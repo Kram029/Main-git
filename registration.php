@@ -2,7 +2,7 @@
 $host = 'localhost';
 $user = 'root';
 $pass = '';
-$dbname = 'places';
+$dbname = 'mysql';
 
 $conn = new mysqli($host, $user, $pass, $dbname);
 if ($conn->connect_error) {
@@ -133,7 +133,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if ($confirm_password !== $password) {
     $xconfirm = "Passwords do not match.";
   }
+
+  // IF NO ERRORS, INSERT INTO DATABASE
+  if (!$xfullname && !$xemail && !$xcontact && !$xstreet && !$xusername && !$xpassword && !$xconfirm) {
+    // Hash the password first!
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    $stmt = $conn->prepare("INSERT INTO table_users_registration (first_name, middle_name, last_name, suffix, email, contact, region_id, province_id, city_id, barangay_id, street, username, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param(
+      "ssssssiiissss",
+      $fullname['first_name'],
+      $fullname['middle_name'],
+      $fullname['last_name'],
+      $fullname['suffix'],
+      $email,
+      $contact,
+      $region,
+      $province,
+      $city,
+      $barangay,
+      $street,
+      $username,
+      $hashed_password
+    );
+
+    if ($stmt->execute()) {
+      echo "<script>alert('Registration successful!');</script>";
+      // Optionally clear form inputs after success
+      $fullname = ['first_name' => '', 'middle_name' => '', 'last_name' => '', 'suffix' => ''];
+      $email = $contact = $street = $username = $password = $confirm_password = '';
+      $region = $province = $city = $barangay = '';
+    } else {
+      echo "<script>alert('Error: " . $stmt->error . "');</script>";
+    }
+    $stmt->close();
+  }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -244,7 +280,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <div class="mb-3">
         <label class="form-label" for="first_name">Full Name</label>
         <div class="row g-2">
-          <?php foreach (['first_name' => 'First Name', 'middle_name' => 'Middle Name', 'last_name' => 'Last Name', 'suffix' => 'Suffix'] as $key => $placeholder): ?>
+          <?php foreach (['first_name' => 'First Name', 'middle_name' => 'Middle Name', 'last_name' => 'Last Name', 'suffix' => 'Suffix(Optional)'] as $key => $placeholder): ?>
             <div class="col-md-3">
               <input id="<?= $key ?>" type="text" name="<?= $key ?>" class="form-control <?= $xfullname ? 'is-invalid' : '' ?>" placeholder="<?= $placeholder ?>" value="<?= htmlspecialchars($fullname[$key]) ?>">
             </div>
