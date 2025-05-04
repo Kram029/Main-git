@@ -1,12 +1,45 @@
+<?php
+include 'db.php'; // Ensure this file contains your database connection
+
+// Check if a delete request is made
+if (isset($_GET['id']) && isset($_GET['delete']) && $_GET['delete'] == 'true') {
+    $userId = $_GET['id'];
+
+    // Prepare and execute the stored procedure to delete the user
+    if ($stmt = $conn->prepare("CALL delete_user(?)")) {
+        $stmt->bind_param("i", $userId);  // Bind the user ID parameter
+        if ($stmt->execute()) {
+            // Redirect to the same page after deletion
+            header('Location: admin(users).php');
+            exit();
+        } else {
+            echo "Error deleting user: " . $stmt->error;
+        }
+        $stmt->close();
+    } else {
+        echo "Failed to prepare statement: " . $conn->error;
+    }
+}
+
+// Fetch users to display in the table
+$sql = "SELECT id, first_name, last_name, email, contact FROM users";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>EcoTrack - Users</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
             background-color: #f2f2f2;
         }
 
@@ -17,37 +50,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        .container {
-            display: flex;
-        }
-
-        .sidebar {
-            width: 200px;
-            background-color: #fff;
-            padding: 20px;
-            border-right: 1px solid #ddd;
-            height: calc(100vh - 65px);
-        }
-
-        .nav-button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            background-color: #e0f2f1;
-            border: none;
-            border-radius: 6px;
-            text-align: left;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .nav-button.active {
-            background-color: #388e3c;
-            color: white;
-            font-weight: bold;
         }
 
         .main {
@@ -111,14 +113,28 @@
             font-size: 14px;
             width: 200px;
         }
-        .nav-button.active {
-  background-color: #388e3c;
-  color: white;
-  font-weight: bold;
-}
 
+        /* Flex layout to organize sidebar and main content */
+        .container {
+            display: flex;
+            height: calc(100vh - 70px); /* Account for header height */
+        }
 
+        /* Sidebar styling */
+        .sidebar {
+            background-color: #ffffff;
+            width: 200px;
+            padding: 20px 10px;
+            border-right: 1px solid #ccc;
+            flex-shrink: 0;
+        }
 
+        /* Main content area */
+        .main {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -135,49 +151,47 @@
 </header>
 
 <div class="container">
-    <div class="sidebar">
-    <a href="admin.php"><button class="nav-button">Dashboard</button></a>
-        <a href="admin(users).php"><button class="nav-button active">Users</button></a>
-        <a href="admin(sched).php"><button class="nav-button">Schedules</button></a>
-        <a href="admin(report).php"><button class="nav-button">Reports</button></a>
-        <a href="admin(settings).php"><button class="nav-button">Settings</button></a>
-    </div>
+    <?php include 'sidebar.php'; // Include your sidebar file ?>
 
     <div class="main">
         <div class="welcome">Welcome, Admin [username]!</div>
 
+        <!-- Search bar -->
         <div class="search-bar">
             <input type="text" placeholder="Search">
         </div>
 
+        <!-- Table displaying users -->
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
                     <th>Email</th>
-                    <th>Role</th>
-                    <th>Status</th>
+                    <th>Phone</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>John Doe</td>
-                    <td>john.doe@example.com</td>
-                    <td>User</td>
-                    <td>Active</td>
-                    <td class="actions"><a href="#">Edit</a> <a href="#">Delete</a></td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Jane Smith</td>
-                    <td>janesmith@example.com</td>
-                    <td>User</td>
-                    <td>Inactive</td>
-                    <td class="actions"><a href="#">Edit</a> <a href="#">Delete</a></td>
-                </tr>
+                <?php
+                    if ($result && $result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            $fullName = $row['first_name'] . ' ' . $row['last_name'];
+                            echo "<tr>
+                                    <td>{$row['id']}</td>
+                                    <td>{$fullName}</td>
+                                    <td>{$row['email']}</td>
+                                    <td>{$row['contact']}</td>
+                                    <td class='actions'>
+                                        <a href='#' onclick='confirmDelete({$row['id']})'>Delete</a>
+                                    </td>
+                                  </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='5'>No users found.</td></tr>";
+                    }
+                    $conn->close();
+                ?>
             </tbody>
         </table>
 
@@ -189,14 +203,13 @@
 </div>
 
 <script>
-  const buttons = document.querySelectorAll('.nav-button');
-
-  buttons.forEach(button => {
-    button.addEventListener('click', function () {
-      buttons.forEach(btn => btn.classList.remove('active')); // Remove from all
-      this.classList.add('active'); // Add to clicked
-    });
-  });
+  // JavaScript function to confirm user deletion
+  function confirmDelete(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        // Redirect to the same page with the delete flag and user ID
+        window.location.href = 'admin(users).php?id=' + userId + '&delete=true';
+    }
+  }
 </script>
 
 </body>
