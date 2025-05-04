@@ -4,28 +4,31 @@
     <meta charset="UTF-8">
     <title>EcoTrack - Reports</title>
     <style>
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
             font-family: Arial, sans-serif;
+        }
+
+        body {
             background-color: #f2f2f2;
         }
 
         header {
             background-color: #2e7d32;
             color: white;
-            padding: 15px 20px;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         header h1 {
-            margin: 0;
             font-size: 20px;
         }
 
         header p {
-            margin: 0;
             font-size: 14px;
         }
 
@@ -37,38 +40,14 @@
 
         .container {
             display: flex;
+            height: calc(100vh - 80px); /* Adjusted for header height */
         }
 
-        .sidebar {
-            width: 200px;
-            background-color: #fff;
-            padding: 20px;
-            border-right: 1px solid #ddd;
-            height: calc(100vh - 65px);
-        }
-
-        .nav-button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            background-color: #e0f2f1;
-            border: none;
-            border-radius: 6px;
-            text-align: left;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        .nav-button.active {
-            background-color: #388e3c;
-            color: white;
-            font-weight: bold;
-        }
-
+        /* Main content area */
         .main {
             flex-grow: 1;
             padding: 30px;
+            overflow-y: auto;
         }
 
         .welcome {
@@ -123,12 +102,6 @@
             color: gray;
         }
 
-        .nav-button.active {
-            background-color: #388e3c;
-            color: white;
-            font-weight: bold;
-        }
-
         .footer p {
             margin: 4px 0;
         }
@@ -148,13 +121,7 @@
 </header>
 
 <div class="container">
-    <div class="sidebar">
-    <a href="admin.php"><button class="nav-button">Dashboard</button></a>
-        <a href="admin(users).php"><button class="nav-button">Users</button></a>
-        <a href="admin(sched).php"><button class="nav-button">Schedules</button></a>
-        <a href="admin(report).php"><button class="nav-button active">Reports</button></a>
-        <a href="admin(settings).php"><button class="nav-button">Settings</button></a>
-    </div>
+    <?php include 'sidebar.php'; ?>
 
     <div class="main">
         <div class="welcome">Welcome, Admin [username]!</div>
@@ -175,7 +142,7 @@
             </thead>
             <tbody>
                 <?php
-                // Static report data (replace with database connection if needed)
+                // Static report data (replace with DB query as needed)
                 $reports = [
                     ['id' => 1, 'type' => 'Illegal Dumping', 'date' => '2025-04-03', 'status' => 'Resolved'],
                     ['id' => 2, 'type' => 'Missed Pickup', 'date' => '2025-04-04', 'status' => 'Pending']
@@ -202,14 +169,13 @@
 </div>
 
 <script>
-  const buttons = document.querySelectorAll('.nav-button');
-
-  buttons.forEach(button => {
-    button.addEventListener('click', function () {
-      buttons.forEach(btn => btn.classList.remove('active'));
-      this.classList.add('active');
+    const buttons = document.querySelectorAll('.nav-button');
+    buttons.forEach(button => {
+        button.addEventListener('click', function () {
+            buttons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+        });
     });
-  });
 </script>
 
 </body>
