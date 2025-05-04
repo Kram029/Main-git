@@ -1,16 +1,32 @@
+<?php
+include 'db.php'; // Make sure this is correct and accessible
+
+$user_count = 0;
+$result = $conn->query("SELECT COUNT(*) as total FROM users");
+if ($result && $row = $result->fetch_assoc()) {
+    $user_count = $row['total'];
+}
+
+$sql_schedule = "SELECT date, time, barangay FROM schedules WHERE date = CURDATE()";
+$result_schedule = $conn->query($sql_schedule);
+
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>EcoTrack Dashboard</title>
+  <title>EcoTrack Admin Dashboard</title>
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
     }
 
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
       background-color: #f2f2f2;
     }
 
@@ -24,13 +40,11 @@
     }
 
     header h1 {
-      margin: 0;
-      font-size: 20px;
+      font-size: 32px;
     }
 
     header p {
-      margin: 0;
-      font-size: 14px;
+      font-size: 18px;
     }
 
     .logout {
@@ -41,44 +55,46 @@
 
     .container {
       display: flex;
+      height: calc(100vh - 70px);
     }
 
     .sidebar {
+      background-color: #ffffff;
       width: 200px;
-      background-color: #fff;
-      padding: 20px;
-      border-right: 1px solid #ddd;
-      height: calc(100vh - 65px);
+      padding: 20px 10px;
+      border-right: 1px solid #ccc;
     }
 
     .nav-button {
-      display: block;
+      display: flex;
+      align-items: center;
       width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      background-color: #e0f2f1;
+      padding: 10px;
+      background-color: transparent;
       border: none;
-      border-radius: 6px;
       text-align: left;
       font-size: 16px;
       cursor: pointer;
-      font-family: Arial, sans-serif;
-      transition: background-color 0.3s ease;
-    }
-
-    .nav-button:hover {
-      background-color: #c8e6c9;
+      margin-bottom: 5px;
+      text-decoration: none;
+      color: black;
     }
 
     .nav-button.active {
-      background-color: #388e3c;
+      background-color: #4caf50;
       color: white;
       font-weight: bold;
+      border-radius: 6px;
+    }
+
+    .nav-button i {
+      margin-right: 10px;
     }
 
     .main {
       flex-grow: 1;
       padding: 30px;
+      overflow-y: auto;
     }
 
     .welcome {
@@ -87,56 +103,63 @@
       border-radius: 5px;
       font-size: 18px;
       font-weight: bold;
+      margin-bottom: 20px;
     }
 
     .cards {
       display: flex;
-      gap: 20px;
-      margin: 30px 0;
+      justify-content: space-between;
+      margin-bottom: 20px;
     }
 
     .card {
-      background-color: #e8f5e9;
+      background-color: white;
       padding: 20px;
-      border-radius: 8px;
+      border: 2px solid #4caf50;
+      width: 32%;
       text-align: center;
-      flex: 1;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      font-weight: bold;
+      border-radius: 6px;
     }
 
     .card h2 {
-      margin: 0 0 10px;
-      font-size: 20px;
+      margin-bottom: 10px;
+      font-size: 18px;
     }
 
     .card p {
       font-size: 24px;
-      margin: 0;
-      font-weight: bold;
+    }
+
+    h3 {
+      background-color: #4caf50;
+      color: white;
+      padding: 10px;
+      margin-bottom: 0;
+      border-radius: 4px 4px 0 0;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
-      background-color: #ffffff;
+      background-color: white;
     }
 
     th, td {
-      border: 1px solid #ddd;
+      border: 1px solid #ccc;
       padding: 12px;
       text-align: center;
     }
 
     th {
-      background-color: #c8e6c9;
+      background-color: #e8f5e9;
     }
 
     .footer {
-      margin-top: 40px;
       text-align: center;
       font-size: 12px;
       color: gray;
+      margin-top: 40px;
     }
 
     .footer p {
@@ -158,13 +181,7 @@
 </header>
 
 <div class="container">
-  <div class="sidebar">
-  <a href="admin.php"><button class="nav-button active">Dashboard</button></a>
-  <a href="admin(users).php"><button class="nav-button">Users</button></a>
-  <a href="admin(sched).php"><button class="nav-button">Schedules</button></a>
-  <a href="admin(report).php"><button class="nav-button">Reports</button></a>
-  <a href="admin(settings).php"><button class="nav-button">Settings</button></a>
-  </div>
+  <?php include 'sidebar.php'; ?>
 
   <div class="main">
     <div class="welcome">Welcome, Admin [username]!</div>
@@ -172,10 +189,10 @@
     <div class="cards">
       <div class="card">
         <h2>Users</h2>
-        <p>0</p>
+        <p><?= $user_count ?></p>
       </div>
       <div class="card">
-        <h2>Waste collections</h2>
+        <h2>Waste Collections</h2>
         <p>0</p>
       </div>
       <div class="card">
@@ -186,14 +203,28 @@
 
     <h3>Today's Pickup Schedules</h3>
     <table>
-      <tr>
+      <thead>
+        <tr>
         <th>Date</th>
         <th>Time</th>
         <th>Barangay</th>
       </tr>
-      <tr>
-        <td colspan="3">No pickup schedules for today.</td>
-      </tr>
+      </thead>
+      <tbody>
+      <?php
+        if ($result_schedule && $result_schedule->num_rows > 0) {
+            while ($row = $result_schedule->fetch_assoc()) {
+                echo "<tr>
+                        <td>{$row['date']}</td>
+                        <td>{$row['time']}</td>
+                        <td>{$row['barangay']}</td>
+                      </tr>";
+            }
+        } else {
+            echo "<tr><td colspan='3'>No pickup schedules for today.</td></tr>";
+        }
+        ?>
+      </tbody>
     </table>
 
     <div class="footer">
@@ -205,7 +236,6 @@
 
 <script>
   const buttons = document.querySelectorAll('.nav-button');
-
   buttons.forEach(button => {
     button.addEventListener('click', function () {
       buttons.forEach(btn => btn.classList.remove('active'));
