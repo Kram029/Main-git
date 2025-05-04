@@ -4,84 +4,57 @@
   <meta charset="UTF-8">
   <title>EcoTrack Admin Settings</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f3f3f3;
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f3f3f3;
     }
 
     /* Header */
-    .header {
+    header {
       background-color: #2f8d44;
       color: white;
-      padding: 10px 20px;
+      padding: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .header .title {
+    header h1 {
       font-size: 20px;
-      font-weight: bold;
     }
 
-    /* Sidebar */
-    .sidebar {
-      width: 220px;
-      background-color: #ffffff;
-      padding: 0;
-      position: fixed;
-      top: 60px;
-      bottom: 0;
+    header p {
+      font-size: 14px;
     }
 
-    .logo {
-      background-color: #2f8d44;
+    .logout {
       color: white;
-      padding: 10px 20px;
+      font-size: 14px;
+      text-decoration: none;
     }
 
-    .logo h1 {
-      margin: 0;
-      font-size: 20px;
+    .container {
+      display: flex;
+      height: calc(100vh - 80px); /* height excluding header */
     }
 
-    .logo p {
-      margin: 0;
-      font-size: 12px;
-    }
-
-    .nav-button {
-      display: block;
-      width: 90%;
-      padding: 10px;
-      margin: 10px auto;
-      background-color: #e0f4f4;
-      color: black;
-      border: none;
-      border-radius: 10px;
-      text-align: left;
-      font-size: 16px;
-      font-weight: normal;
-      cursor: pointer;
-      text-decoration: underline;
-    }
-
-    .nav-button:hover {
-      background-color: #ccecec;
-    }
-
-    /* Main Content */
+    /* Main content */
     .main {
-      margin-left: 240px;
-      padding: 20px;
+      flex-grow: 1;
+      padding: 30px;
+      overflow-y: auto;
     }
 
     .welcome {
       background-color: #4caf50;
       color: white;
-      padding: 10px;
+      padding: 10px 15px;
       font-size: 18px;
       border-radius: 5px;
     }
@@ -108,7 +81,9 @@
       font-weight: bold;
     }
 
-    input[type="text"], input[type="email"], input[type="password"] {
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
       width: 100%;
       padding: 8px;
       box-sizing: border-box;
@@ -145,59 +120,55 @@
       background-color: #276f3a;
     }
 
-    .nav-button.active {
-        background-color: #388e3c;
-        color: white;
-        font-weight: bold;
-    }
-
     .footer {
       text-align: center;
       margin-top: 40px;
       font-size: 12px;
       color: #666;
     }
+
+    .footer p {
+      margin: 4px 0;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="header">
-    <div class="title">EcoTrack</div>
-    <div>Thursday, April 03, 2025</div>
+<header>
+  <div>
+    <h1>EcoTrack</h1>
+    <p>Smarter Waste, Greener Cities</p>
   </div>
-
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="logo">
-      <h1>EcoTrack</h1>
-      <p>Smarter Waste, Greener Cities</p>
-    </div>
-    <a href="admin.php"><button class="nav-button">Dashboard</button></a>
-        <a href="admin(users).php"><button class="nav-button">Users</button></a>
-        <a href="admin(sched).php"><button class="nav-button">Schedules</button></a>
-        <a href="admin(report).php"><button class="nav-button">Reports</button></a>
-        <a href="admin(settings).php"><button class="nav-button active">Settings</button></a>
+  <div>
+    <p>Thursday, April 03, 2025</p>
+    <a class="logout" href="#">LOG OUT</a>
   </div>
+</header>
 
-  <!-- Main Content -->
+<div class="container">
+  <?php include 'sidebar.php'; ?>
+
   <div class="main">
     <div class="welcome">Welcome, Admin [username]!</div>
 
     <div class="settings-box">
       <h3>Profile Settings</h3>
+
       <div class="form-group">
         <label>Admin Name</label>
         <input type="text" value="John Doe">
       </div>
+
       <div class="form-group">
         <label>Admin Email</label>
         <input type="email" value="john@example.com">
       </div>
+
       <div class="form-group">
         <label>New Password</label>
         <input type="password">
       </div>
+
       <div class="form-group">
         <label>Confirm Password</label>
         <input type="password">
@@ -215,14 +186,14 @@
     </div>
 
     <div class="footer">
-      <div>Privacy Statement | Terms and Condition | Privacy Policy</div>
-      <div>©2025 EcoTrack. All Rights Reserved.</div>
+      <p>Privacy Statement | Terms and Condition | Privacy Policy</p>
+      <p>©2025 EcoTrack. All Rights Reserved.</p>
     </div>
   </div>
+</div>
 
-  <script>
+<script>
   const buttons = document.querySelectorAll('.nav-button');
-
   buttons.forEach(button => {
     button.addEventListener('click', function () {
       buttons.forEach(btn => btn.classList.remove('active'));
