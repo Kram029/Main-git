@@ -1,5 +1,4 @@
 .reports-content {
-    background-color: rgba(255, 255, 255, 0.1);
     padding: 40px;
     margin: auto;
     text-align: center;
@@ -7,4 +6,70 @@
     font-size: 24px;
     border-radius: 10px;
     width: 60%;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    background: rgba(241, 241, 241, 0.945);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+h2 {
+    margin-top: 0;
+    text-align: center;
+    color: #333;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+input[type="text"], textarea {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+}
+
+textarea {
+    min-height: 150px;
+}
+
+input[type="submit"] {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.submitted {
+    margin-top: 20px;
+    background-color: #e6ffe6;
+    border: 1px solid #b2ffb2;
+    padding: 15px;
+    border-radius: 5px;
 }
