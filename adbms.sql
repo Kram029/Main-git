@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 10, 2025 at 08:21 AM
+-- Generation Time: May 10, 2025 at 08:38 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,39 @@ SET time_zone = "+00:00";
 --
 -- Database: `adbms`
 --
+
+DELIMITER $$
+--
+-- Procedures
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `AddSchedule` (IN `p_barangay` VARCHAR(100), IN `p_date` DATE, IN `p_time` TIME, IN `p_status` VARCHAR(50))   BEGIN
+    INSERT INTO schedules (barangay, date, time, status)
+    VALUES (p_barangay, p_date, p_time, p_status);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `DeleteSchedule` (IN `p_id` INT)   BEGIN
+    DELETE FROM schedules WHERE id = p_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `delete_user` (IN `user_id` INT)   BEGIN
+    DELETE FROM users WHERE id = user_id;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertSchedule` (IN `p_barangay` VARCHAR(100), IN `p_date` DATE, IN `p_time` TIME, IN `p_status` VARCHAR(20))   BEGIN
+    INSERT INTO schedules (barangay, date, time, status)
+    VALUES (p_barangay, p_date, p_time, p_status);
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateSchedule` (IN `p_id` INT, IN `p_barangay` VARCHAR(255), IN `p_date` DATE, IN `p_time` TIME, IN `p_status` VARCHAR(50))   BEGIN
+    UPDATE schedules
+    SET barangay = p_barangay,
+        date = p_date,
+        time = p_time,
+        status = p_status
+    WHERE id = p_id;
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -43,6 +76,40 @@ INSERT INTO `admin` (`username`, `password`) VALUES
 ('adminSaniel', 'Mark#789'),
 ('adminVillanueva', 'Laurenze#135'),
 ('adminVilloria', 'Nino#579');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `images`
+--
+
+CREATE TABLE `images` (
+  `id` int(11) NOT NULL,
+  `file` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `schedules`
+--
+
+CREATE TABLE `schedules` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `barangay` varchar(100) NOT NULL,
+  `date` varchar(25) NOT NULL,
+  `time` varchar(25) NOT NULL,
+  `status` varchar(25) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `schedules`
+--
+
+INSERT INTO `schedules` (`id`, `barangay`, `date`, `time`, `status`) VALUES
+(1, 'antips', '2025-05-04', '16:00:00', 'Scheduled'),
+(4, 'pkawit', '2025-05-21', '13:21', 'Scheduled'),
+(5, 'anitpolo', '2025-05-14', '14:30:00', 'Pending');
 
 -- --------------------------------------------------------
 
@@ -44094,42 +44161,6 @@ CREATE TABLE `table_users_registration` (
 INSERT INTO `table_users_registration` (`id`, `first_name`, `middle_name`, `last_name`, `suffix`, `email`, `contact`, `street`, `region_id`, `province_id`, `city_id`, `barangay_id`, `username`, `password`, `created_at`) VALUES
 (1, 'wewewe', 'we', 'wewewewe', 'we', 'mojpokqwe@gmail.com', '09999999999', '', 17, 74, 1491, 39551, 'WewewewW', '$2y$10$yClo10TApGwoNgz9.OV94uzlt6ZvuG.0.qYoUMjBDXKIra1wVPg2q', '2025-05-03 17:09:31');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `first_name` varchar(50) DEFAULT NULL,
-  `middle_name` varchar(50) DEFAULT NULL,
-  `last_name` varchar(50) DEFAULT NULL,
-  `suffix` varchar(10) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `contact` varchar(15) DEFAULT NULL,
-  `street` varchar(100) DEFAULT NULL,
-  `region` varchar(50) DEFAULT NULL,
-  `province` varchar(50) DEFAULT NULL,
-  `city` varchar(50) DEFAULT NULL,
-  `barangay` varchar(50) DEFAULT NULL,
-  `username` varchar(50) DEFAULT NULL,
-  `password` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `users`
---
-
-INSERT INTO `users` (`id`, `first_name`, `middle_name`, `last_name`, `suffix`, `email`, `contact`, `street`, `region`, `province`, `city`, `barangay`, `username`, `password`, `created_at`) VALUES
-(1, '', '', '', '', '', '', '', '', '', '', '', '', '$2y$10$sm6GhPGSimpI7Z4eVz2mpOzpMIkg/z8TBNgHq6otcf2V1czlVvjZe', '2025-04-18 08:27:22'),
-(12, 'mj', 'dsds', 'fdgfdgd', 'sddsd', 'mj@gmail.com', '09746573458', 'lipa', 'Region', 'Province', 'City', 'Barangay', 'mjsaniel', '$2y$10$tUGYjZVeCYEL7hgEgUyRceb6XjhLPI670Lp4QaCErTKGQDYg3u8oO', '2025-04-18 08:42:58'),
-(14, 'MarkJoseph', 'Puso', 'Saniel', 'P', 'mjsaniel32@gmail.com', '09999999999', 'lipa', 'Region', 'Province', 'City', 'Barangay', 'Kram_29', '$2y$10$YwgeaF01h9GfeDwwfblqTOEgMwSi9WuwDahVfR7Ed0XfswHUbejh2', '2025-04-23 11:43:43'),
-(17, 'MarkJoseph', 'Puso', 'Saniel', 'P', 'mj01@gmail.com', '09999999999', 'lipa', 'Region', 'Province', 'City', 'Barangay', 'loading_29', '$2y$10$2EEmvozcC4873NwQUdrtyuTNOVvU7LQimN/NJTwFozLUkcaXGJL8e', '2025-04-23 11:49:22'),
-(18, 'John', 'dsds', 'Doe', '', 'mj02@gmail.com', '09999999999', '', 'Region', 'Province', 'City', 'Barangay', 'Kram_99', NULL, '2025-04-24 07:46:34'),
-(20, 'Fatima', 'Ramirez', 'Arnigo', 'dqfeq', 'arnigofatimabian@gmail.com', '09935048514', 'Purok', 'Region', 'Province', 'City', 'Barangay', 'fatimabian', 'Fatima#26', '2025-04-24 09:48:00');
-
 --
 -- Indexes for dumped tables
 --
@@ -44147,14 +44178,6 @@ ALTER TABLE `table_users_registration`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD UNIQUE KEY `username` (`username`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -44163,12 +44186,6 @@ ALTER TABLE `users`
 --
 ALTER TABLE `table_users_registration`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
