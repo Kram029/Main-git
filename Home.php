@@ -22,17 +22,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit();
   } else {
     // Check users table
-    $user_query = "SELECT * FROM table_users_registration WHERE username = ? AND password = ?";
+    $user_query = "SELECT * FROM table_users_registration WHERE username = ?";
     $stmt = $conn->prepare($user_query);
-    $stmt->bind_param("ss", $username, $password);
+    $stmt->bind_param("s", $username);
     $stmt->execute();
     $user_result = $stmt->get_result();
     
     if ($user_result->num_rows > 0) {
-      $_SESSION['username'] = $username;
-      $_SESSION['role'] = 'user';
-      header("Location: adms/ui/Dashboard.php");
-      exit();
+      $user = $user_result->fetch_assoc();
+      if (password_verify($password, $user['password'])) {
+        $_SESSION['username'] = $username;
+        $_SESSION['role'] = 'user';
+        header("Location: adms/ui/dashboard.php");
+        exit();
+      } else {
+        $error = "Invalid username or password";
+      }
     } else {
       $error = "Invalid username or password";
     }
