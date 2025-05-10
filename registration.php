@@ -1,8 +1,13 @@
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
 <?php
-include 'db.php'; // Make sure this connects to your DB
+$host = 'localhost';
+$user = 'root';
+$pass = '';
+$dbname = 'adbms';
+
+$conn = new mysqli($host, $user, $pass, $dbname);
+if ($conn->connect_error) {
+  die('Connection failed: ' . $conn->connect_error);
+}
 
 $xfullname = $xemail = $xcontact = $xstreet = $xusername = $xpassword = $xconfirm = '';
 $fullname = [
@@ -11,112 +16,180 @@ $fullname = [
   'last_name' => '',
   'suffix' => ''
 ];
-
 $email = $contact = $street = $username = $password = $confirm_password = '';
+$region = $province = $city = $barangay = '';
 
+$regions = [];
+$provinces = [];
+$cities = [];
+$barangays = [];
+
+if (isset($_POST['region']) && $_POST['region'] !== '') {
+    $region = $_POST['region'];
+}
+if (isset($_POST['province']) && $_POST['province'] !== '') {
+    $province = $_POST['province'];
+}
+if (isset($_POST['city']) && $_POST['city'] !== '') {
+    $city = $_POST['city'];
+}
+if (isset($_POST['barangay']) && $_POST['barangay'] !== '') {
+    $barangay = $_POST['barangay'];
+}
+
+// Load region
+$res = $conn->query("SELECT * FROM table_region ORDER BY region_name ASC");
+if ($res) {
+    while ($row = $res->fetch_assoc()) {
+        $regions[] = [
+          'id' => $row['region_id'],
+          'name' => $row['region_name']
+        ];
+    }
+}
+
+// Load province
+if ($region) {
+  $stmt = $conn->prepare("SELECT * FROM table_province WHERE region_id = ? ORDER BY province_name ASC");
+  $stmt->bind_param("i", $region);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  while ($row = $res->fetch_assoc()) {
+      $provinces[] = [
+        'id' => $row['province_id'],
+        'name' => $row['province_name']
+      ];
+  }
+  $stmt->close();
+}
+
+// Load city
+if ($province) {
+  $stmt = $conn->prepare("SELECT * FROM table_municipality WHERE province_id = ? ORDER BY municipality_name ASC");
+  $stmt->bind_param("i", $province);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  while ($row = $res->fetch_assoc()) {
+      $cities[] = [
+        'id' => $row['municipality_id'],
+        'name' => $row['municipality_name']
+      ];
+  }
+  $stmt->close();
+}
+
+// Load barangay
+if ($city) {
+  $stmt = $conn->prepare("SELECT * FROM table_barangay WHERE municipality_id = ? ORDER BY barangay_name ASC");
+  $stmt->bind_param("i", $city);
+  $stmt->execute();
+  $res = $stmt->get_result();
+  while ($row = $res->fetch_assoc()) {
+      $barangays[] = [
+        'id' => $row['barangay_id'],
+        'name' => $row['barangay_name']
+      ];
+  }
+  $stmt->close();
+}
+
+// Form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   foreach ($fullname as $key => $val) {
     $fullname[$key] = trim($_POST[$key]);
   }
-
   $email = trim($_POST['email']);
   $contact = trim($_POST['contact']);
   $street = trim($_POST['street']);
   $username = trim($_POST['username']);
   $password = trim($_POST['password']);
   $confirm_password = trim($_POST['confirm_password']);
-
-  // Validations
+  
   $combinedName = implode('', $fullname);
   if (!preg_match("/^[A-Za-z\s]+$/", $combinedName)) {
-    $xfullname = "Please use letters and spaces only. No numbers or special characters allowed in the full name.";
-  }  
+    $xfullname = "Please use letters and spaces only. No numbers or special characters allowed.";
+  }
 
   if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $xemail = "Please enter a valid email address.";
   }
 
   if (!preg_match("/^09\d{9}$/", $contact)) {
-    $xcontact = "Contact must start with '09', only 11 digits in total, and no letters.";
+    $xcontact = "Contact must start with '09', only 11 digits in total.";
   }
 
-  if (!empty($street) && !preg_match("/^[A-Za-z0-9\s,]{3,}$/", $street)) {
-    $xstreet = "Street must be at least 3 characters and contain only letters, numbers, spaces, and commas.";
+  if (!empty($street) && !preg_match("/^[A-Za-z0-9\s]+$/", $street)) {
+    $xstreet = "Street must contain only letters, numbers, and spaces. No special characters allowed.";
   }
 
   if (!preg_match("/^\w{6,20}$/", $username)) {
-    $xusername = "Username must be 6-20 characters and can include letters, numbers, and underscores.";
+    $xusername = "Username must be 6-20 characters and can only include letters, numbers, and underscores.";
   }
 
   if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/", $password)) {
-    $xpassword = "Password must be at least 8 characters with uppercase, lowercase, number, and special character.";
+    $xpassword = "Password must be at least 8 characters, with uppercase, lowercase, number, and symbol.";
   }
 
   if ($confirm_password !== $password) {
     $xconfirm = "Passwords do not match.";
   }
 
-  // Proceed if no errors
+  // IF NO ERRORS, INSERT INTO DATABASE
   if (!$xfullname && !$xemail && !$xcontact && !$xstreet && !$xusername && !$xpassword && !$xconfirm) {
-    // Check for duplicate email or username
-    $check = $conn->prepare("SELECT id FROM users WHERE email = ? OR username = ?");
-    $check->bind_param("ss", $email, $username);
-    $check->execute();
-    $check->store_result();
+    // Hash the password first!
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    if ($check->num_rows > 0) {
-      echo "<script>alert('Email or Username already exists. Please use another.');</script>";
+    $stmt = $conn->prepare("INSERT INTO table_users_registration (first_name, middle_name, last_name, suffix, email, contact, region_id, province_id, city_id, barangay_id, street, username, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param(
+      "ssssssiiissss",
+      $fullname['first_name'],
+      $fullname['middle_name'],
+      $fullname['last_name'],
+      $fullname['suffix'],
+      $email,
+      $contact,
+      $region,
+      $province,
+      $city,
+      $barangay,
+      $street,
+      $username,
+      $hashed_password
+    );
+
+    if ($stmt->execute()) {
+      echo "<script>
+        alert('Registration successful!');
+        window.location.href = 'Home.php';
+      </script>";
+      // Optionally clear form inputs after success
+      $fullname = ['first_name' => '', 'middle_name' => '', 'last_name' => '', 'suffix' => ''];
+      $email = $contact = $street = $username = $password = $confirm_password = '';
+      $region = $province = $city = $barangay = '';
     } else {
-    // Insert new user
-$stmt = $conn->prepare("
-  INSERT INTO users (
-    first_name, middle_name, last_name, suffix, email, contact,
-    region, province, city, barangay, street, username, password
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-");
-
-$hashed_password = password_hash($password, PASSWORD_DEFAULT); // HASHING the password properly
-
-$stmt->bind_param(
-  "sssssssssssss",
-  $fullname['first_name'],
-  $fullname['middle_name'],
-  $fullname['last_name'],
-  $fullname['suffix'],
-  $email,
-  $contact,
-  $_POST['region'],
-  $_POST['province'],
-  $_POST['city'],
-  $_POST['barangay'],
-  $street,
-  $username,
-  $hashed_password
-);
-
-if ($stmt->execute()) {
-  echo "<script>alert('Registration successful!'); window.location='Home.php';</script>";
-} else {
-  echo "Error: " . $stmt->error;
-}
-
-$stmt->close();
+      echo "<script>alert('Error: " . $stmt->error . "');</script>";
     }
-
-    $check->close();
+    $stmt->close();
   }
 }
+
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>EcoTrack Registration</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Add Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
-    body {
+  body {
       font-family: 'Quattrocento', serif;
       background: #fff;
       margin: 0;
+      color: #000;
     }
     .yellow-line {
       height: 5px;
@@ -155,6 +228,7 @@ $stmt->close();
       text-align: center;
       border-bottom: 2px solid #333;
       padding: 20px;
+      color: #000;
     }
     form {
       padding: 0 20px 20px;
@@ -162,6 +236,8 @@ $stmt->close();
     label {
       display: block;
       margin-top: 15px;
+      color: #000;
+      font-weight: 500;
     }
     input, select {
       width: 100%;
@@ -169,6 +245,10 @@ $stmt->close();
       margin-top: 5px;
       border-radius: 5px;
       border: 1px solid #ccc;
+      color: #000;
+    }
+    input::placeholder {
+      color: #666;
     }
     .flex-row {
       display: flex;
@@ -185,89 +265,165 @@ $stmt->close();
       border-radius: 5px;
       cursor: pointer;
     }
+    .invalid-feedback {
+      color: #dc3545;
+    }
+    .password-container {
+      position: relative;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
+      z-index: 10;
+    }
+    .password-toggle:hover {
+      color: #000;
+    }
   </style>
 </head>
 <body>
-
 <?php include 'navbar.php'; ?>
 
+<main>
 <div class="form-container">
   <div class="form-box">
     <div class="logo-bar">
-      <img src="ecotrack.png" alt="EcoTrack">
+      <img src="ecotrack.png" alt="EcoTrack Logo Main">
     </div>
-    <h2>EcoTrackers Registration Form</h2>
-    <form method="POST">
-      <label>Full Name</label>
-      <div class="flex-row">
-        <input type="text" name="first_name" placeholder="First Name"
-          value="<?= htmlspecialchars($fullname['first_name']) ?>"
-          pattern="[A-Za-z]+" required
-          style="<?= $xfullname ? 'border:1px solid red;' : '' ?>">
 
-        <input type="text" name="middle_name" placeholder="Middle Name"
-          value="<?= htmlspecialchars($fullname['middle_name']) ?>"
-          pattern="[A-Za-z]*"
-          style="<?= $xfullname ? 'border:1px solid red;' : '' ?>">
+    <h2 class="text-center my-3">EcoTrackers Registration Form</h2>
 
-        <input type="text" name="last_name" placeholder="Last Name"
-          value="<?= htmlspecialchars($fullname['last_name']) ?>"
-          pattern="[A-Za-z]+" required
-          style="<?= $xfullname ? 'border:1px solid red;' : '' ?>">
-
-        <input type="text" name="suffix" placeholder="Suffix"
-          value="<?= htmlspecialchars($fullname['suffix']) ?>"
-          pattern="[A-Za-z]*"
-          style="<?= $xfullname ? 'border:1px solid red;' : '' ?>">
+    <form method="POST" class="needs-validation" novalidate>
+      
+      
+      <div class="mb-3">
+        <label class="form-label" for="first_name">Full Name</label>
+        <div class="row g-2">
+          <?php foreach (['first_name' => 'First Name', 'middle_name' => 'Middle Name', 'last_name' => 'Last Name', 'suffix' => 'Suffix(Optional)'] as $key => $placeholder): ?>
+            <div class="col-md-3">
+              <input id="<?= $key ?>" type="text" name="<?= $key ?>" class="form-control <?= $xfullname ? 'is-invalid' : '' ?>" placeholder="<?= $placeholder ?>" value="<?= htmlspecialchars($fullname[$key]) ?>">
+            </div>
+          <?php endforeach; ?>
+        </div>
+        <?php if ($xfullname): ?><div class="invalid-feedback"><?= $xfullname ?></div><?php endif; ?>
       </div>
 
-      <label>Email Address</label>
-      <input type="email" name="email"
-        value="<?= htmlspecialchars($email) ?>"
-        style="<?= $xemail ? 'border:1px solid red;' : '' ?>">
-
-      <label>Contact Number</label>
-      <input type="text" name="contact"
-        value="<?= htmlspecialchars($contact) ?>"
-        pattern="09\d{9}" required
-        style="<?= $xcontact ? 'border:1px solid red;' : '' ?>">
-
-      <label>Current Address</label>
-      <div class="flex-row">
-        <select name="region"><option>Region</option></select>
-        <select name="province"><option>Province</option></select>
+    
+      <div class="mb-3">
+        <label for="email" class="form-label">Email Address</label>
+        <input id="email" type="email" name="email" placeholder="ex. juandelacruz@gmail.com"
+        class="form-control <?= $xemail ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($email) ?>">
+        <?php if ($xemail): ?><div class="invalid-feedback"><?= $xemail ?></div><?php endif; ?>
       </div>
-      <div class="flex-row" style="margin-top: 10px;">
-        <select name="city"><option>City</option></select>
-        <select name="barangay"><option>Barangay</option></select>
+
+     
+      <div class="mb-3">
+        <label for="contact" class="form-label">Contact Number</label>
+        <input id="contact" type="text" name="contact" placeholder="ex. 09xxxxxxxxx"
+        class="form-control <?= $xcontact ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($contact) ?>">
+        <?php if ($xcontact): ?><div class="invalid-feedback"><?= $xcontact ?></div><?php endif; ?>
       </div>
-      <input type="text" name="street"
-        value="<?= htmlspecialchars($street) ?>"
-        pattern="[A-Za-z0-9\s,]{3,}"
-        style="<?= $xstreet ? 'border:1px solid red;' : '' ?>">
 
-      <label>Create Username</label>
-      <input type="text" name="username"
-        value="<?= htmlspecialchars($username) ?>"
-        pattern="^\w{6,20}$"
-        style="<?= $xusername ? 'border:1px solid red;' : '' ?>">
+      
+      <div class="mb-3">
+        <label for="region" class="form-label">Current Address</label>
+        
+        <select name="region" id="region" class="form-select mb-2" onchange="this.form.submit()">
+          <option value="">Select Region</option>
+          <?php foreach ($regions as $reg): ?>
+            <option value="<?= $reg['id'] ?>" <?= $reg['id'] == $region ? 'selected' : '' ?>><?= htmlspecialchars($reg['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
 
-      <label>Create Password</label>
-      <input type="password" name="password"
-        style="<?= $xpassword ? 'border:1px solid red;' : '' ?>">
+        <select name="province" id="province" class="form-select mb-2" onchange="this.form.submit()">
+          <option value="">Select Province</option>
+          <?php foreach ($provinces as $prov): ?>
+            <option value="<?= $prov['id'] ?>" <?= $prov['id'] == $province ? 'selected' : '' ?>><?= htmlspecialchars($prov['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
 
-      <label>Confirm Password</label>
-      <input type="password" name="confirm_password"
-        style="<?= $xconfirm ? 'border:1px solid red;' : '' ?>">
+        <select name="city" id="city" class="form-select mb-2" onchange="this.form.submit()">
+          <option value="">Select City / Municipality</option>
+          <?php foreach ($cities as $cty): ?>
+            <option value="<?= $cty['id'] ?>" <?= $cty['id'] == $city ? 'selected' : '' ?>><?= htmlspecialchars($cty['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
 
-      <button type="submit">SUBMIT</button>
+        <select name="barangay" id="barangay" class="form-select mb-2">
+          <option value="">Select Barangay</option>
+          <?php foreach ($barangays as $brgy): ?>
+            <option value="<?= $brgy['id'] ?>" <?= $brgy['id'] == $barangay ? 'selected' : '' ?>><?= htmlspecialchars($brgy['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
+
+        <input id="street" type="text" name="street" class="form-control mt-2 <?= $xstreet ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($street) ?>" placeholder="Street">
+        <?php if ($xstreet): ?><div class="invalid-feedback"><?= $xstreet ?></div><?php endif; ?>
+      </div>
+
+      
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input id="username" type="text" name="username" placeholder="Input Username"
+        class="form-control <?= $xusername ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($username) ?>">
+        <?php if ($xusername): ?><div class="invalid-feedback"><?= $xusername ?></div><?php endif; ?>
+      </div>
+
+   
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <div class="password-container">
+          <input id="password" type="password" name="password" placeholder="Input Password"
+          class="form-control <?= $xpassword ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($password) ?>">
+          <span class="password-toggle" onclick="togglePassword('password')">
+            <i class="fas fa-eye"></i>
+          </span>
+        </div>
+        <?php if ($xpassword): ?><div class="invalid-feedback"><?= $xpassword ?></div><?php endif; ?>
+      </div>
+
+     
+      <div class="mb-3">
+        <label for="confirm_password" class="form-label">Confirm Password</label>
+        <div class="password-container">
+          <input id="confirm_password" type="password" name="confirm_password" placeholder="Confirm Password"
+          class="form-control <?= $xconfirm ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($confirm_password) ?>">
+          <span class="password-toggle" onclick="togglePassword('confirm_password')">
+            <i class="fas fa-eye"></i>
+          </span>
+        </div>
+        <?php if ($xconfirm): ?><div class="invalid-feedback"><?= $xconfirm ?></div><?php endif; ?>
+      </div>
+
+      <button type="submit" class="btn btn-success w-100">SUBMIT</button>
+
     </form>
   </div>
 </div>
+</main>
 
-<hr style="border: none; height: 1px; background-color: black;">
 
-<?php include 'footer.php'; ?>
+  <!-- FOOTER -->
+  <?php include 'footer.php'; ?>
 
+  <script>
+    function togglePassword(inputId) {
+      const passwordInput = document.getElementById(inputId);
+      const icon = passwordInput.nextElementSibling.querySelector('i');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+  </script>
 </body>
 </html>
