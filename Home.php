@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit();
   } else {
     // Check users table
-    $user_query = "SELECT * FROM users WHERE username = ? AND password = ?";
+    $user_query = "SELECT * FROM table_users_registration WHERE username = ? AND password = ?";
     $stmt = $conn->prepare($user_query);
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();
