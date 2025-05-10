@@ -24,6 +24,31 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `admin`
+--
+
+CREATE TABLE `admin` (
+  `username` varchar(100) NOT NULL,
+  `password` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admin`
+--
+
+INSERT INTO `admin` (`username`, `password`) VALUES
+('adminArnigo', 'Fatima#26'),
+('adminGepiga', 'Noemi#123'),
+('adminHilario', 'Wena#456'),
+('adminSaniel', 'Mark#789'),
+('adminVillanueva', 'Laurenze#135'),
+('adminVilloria', 'Nino#579');
+
+-- --------------------------------------------------------
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
