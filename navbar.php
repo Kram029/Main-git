@@ -23,8 +23,7 @@
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(255, 255, 255, 0.5); /* Less opacity, more visible background image */
-
+      background: rgba(255, 255, 255, 0.5); 
       z-index: -1;
     }
     

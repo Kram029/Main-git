@@ -399,12 +399,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <!-- CONTENT -->
   <section class="content">
     <div class="intro">
-      <p>
-        <strong>EcoTrack: Smart Waste Solutions for Sustainable Cities</strong> in Rosario, Batangas, addresses the city's growing waste management challenges. 
-        With rapid urbanization, Rosario faces the need for efficient, eco-friendly waste solutions. EcoTrack leverages technology to streamline 
-        waste collection scheduling, engage users, and promote sustainability. The system will optimize waste management, reduce pollution, and foster civic 
-        responsibility, aligning with Rosario's commitment to environmental preservation and supporting the transition to a cleaner, greener future.
-      </p>
+    <p style="font-size: 20px; line-height: 1.8;">
+    <strong>EcoTrack: Smart Waste Solutions for Sustainable Cities</strong> addresses the growing waste management challenges faced by urban areas across the Philippines. 
+    With rapid urbanization, cities nationwide require efficient, eco-friendly waste solutions. 
+    EcoTrack leverages technology to streamline waste collection scheduling, engage users, and promote sustainability. 
+    The system will optimize waste management, reduce pollution, and foster civic responsibility, supporting the transition to a cleaner, greener future nationwide.
+</p>
       <img src="man.png" alt="Eco Image" class="side-img">
     </div>
 
