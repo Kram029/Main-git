@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $password = trim($_POST['password']);
   
   // Check admin table first
-  $admin_query = "SELECT * FROM admin WHERE usern = ? AND pas = ?";
+  $admin_query = "SELECT * FROM admin WHERE username = ? AND password = ?";
   $stmt = $conn->prepare($admin_query);
   $stmt->bind_param("ss", $username, $password);
   $stmt->execute();
