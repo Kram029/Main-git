@@ -67,40 +67,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($check->num_rows > 0) {
       echo "<script>alert('Email or Username already exists. Please use another.');</script>";
     } else {
-      // Insert new user
-      $stmt = $conn->prepare("
-        INSERT INTO users (
-          first_name, middle_name, last_name, suffix, email, contact,
-          region, province, city, barangay, street, username, password
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      ");
+    // Insert new user
+$stmt = $conn->prepare("
+  INSERT INTO users (
+    first_name, middle_name, last_name, suffix, email, contact,
+    region, province, city, barangay, street, username, password
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+");
 
-      $hashed_password = $password; // Storing raw password
+$hashed_password = password_hash($password, PASSWORD_DEFAULT); // HASHING the password properly
 
-      $stmt->bind_param(
-        "sssssssssssss",
-        $fullname['first_name'],
-        $fullname['middle_name'],
-        $fullname['last_name'],
-        $fullname['suffix'],
-        $email,
-        $contact,
-        $_POST['region'],
-        $_POST['province'],
-        $_POST['city'],
-        $_POST['barangay'],
-        $street,
-        $username,
-        $hashed_password
-      );
+$stmt->bind_param(
+  "sssssssssssss",
+  $fullname['first_name'],
+  $fullname['middle_name'],
+  $fullname['last_name'],
+  $fullname['suffix'],
+  $email,
+  $contact,
+  $_POST['region'],
+  $_POST['province'],
+  $_POST['city'],
+  $_POST['barangay'],
+  $street,
+  $username,
+  $hashed_password
+);
 
-      if ($stmt->execute()) {
-        echo "<script>alert('Registration successful!'); window.location='Home.php';</script>";
-      } else {
-        echo "Error: " . $stmt->error;
-      }
+if ($stmt->execute()) {
+  echo "<script>alert('Registration successful!'); window.location='Home.php';</script>";
+} else {
+  echo "Error: " . $stmt->error;
+}
 
-      $stmt->close();
+$stmt->close();
     }
 
     $check->close();

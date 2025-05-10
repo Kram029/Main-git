@@ -1,70 +1,104 @@
+<?php
+session_start();
+include 'db.php';
+
+$error = '';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $username = trim($_POST['username']);
+  $password = trim($_POST['password']);
+  
+  // Check admin table first
+  $admin_query = "SELECT * FROM admin WHERE usern = ? AND pas = ?";
+  $stmt = $conn->prepare($admin_query);
+  $stmt->bind_param("ss", $username, $password);
+  $stmt->execute();
+  $admin_result = $stmt->get_result();
+  
+  if ($admin_result->num_rows > 0) {
+    $_SESSION['username'] = $username;
+    $_SESSION['role'] = 'admin';
+    header("Location: admin.php");
+    exit();
+  } else {
+    // Check users table
+    $user_query = "SELECT * FROM users WHERE username = ? AND password = ?";
+    $stmt = $conn->prepare($user_query);
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+    $user_result = $stmt->get_result();
+    
+    if ($user_result->num_rows > 0) {
+      $_SESSION['username'] = $username;
+      $_SESSION['role'] = 'user';
+      header("Location: adms/ui/Dashboard.php");
+      exit();
+    } else {
+      $error = "Invalid username or password";
+    }
+  }
+  $stmt->close();
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="refresh" content="300"> <!-- Auto refresh every 5 minutes -->
   <title>EcoTrack Login</title>
-
-   <!-- Bootstrap CSS -->
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
   
-</head>
-
-
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
   <style>
-  body {
-      background-image: url('truck1.png');
-      background-size: cover;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      background-position: center;
-      font-family: 'Quattrocento', serif;
-      padding-top: 0px;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;     
-      z-index: -1;
-    }
-    
+    /* --- Navbar Styles --- */
     .navbar {
       background-color: #2c6b2f;
       color: white;
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      justify-content: space-between;
+      font-family: 'Quattrocento', serif;
     }
-
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+    }
     .navbar-brand img {
       width: 80px;
       height: 80px;
       object-fit: cover;
       border-radius: 50%;
     }
-
     .brand-text {
       display: flex;
       flex-direction: column;
       margin-left: 30px;
     }
-
     .main-title {
       font-weight: bold;
       font-size: 25px;
       color: #ffd700;
     }
-
     .subtitle {
       font-size: 20px;
       color: white;
       margin-top: -3px;
     }
-
+    .navbar-nav {
+      display: flex;
+    }
     .navbar-nav .nav-link {
       color: white;
       font-weight: 800;
       margin-right: 40px;
+      text-decoration: none;
     }
-
+    .navbar-nav .nav-link:hover {
+      text-decoration: underline;
+    }
     .yellow-line {
       height: 5px;
       background-color: yellow;
@@ -279,60 +313,87 @@
   gap: 10px;
 }
 
+/* Add these styles to your existing styles */
+.password-container {
+  position: relative;
+  width: 100%;
+}
 
+.password-container input {
+  width: 100%;
+  padding-right: 40px; /* Make room for the icon */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+  user-select: none;
+}
+
+.toggle-password:hover {
+  color: #333;
+}
 
     /* --- Footer --- */
     
   </style>
+  
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const icon = document.querySelector('.toggle-password i');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+  </script>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="logo.png" alt="Logo" />
-        <div class="brand-text">
-          <div class="main-title">EcoTrack</div>
-          <div class="subtitle">Smarter Waste, Greener Cities</div>
-        </div>
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="Home.php">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="FAQs.php">FAQs</a></li>
-          <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
-          <li class="nav-item"><a class="nav-link" href="contacts.php">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  <div class="yellow-line"></div>
+  <!-- NAVBAR -->
+  <?php include 'navbar.php'; ?>
 
-<!-- BANNER + LOGIN -->
-<div class="banner"></div>
+  <!-- BANNER + LOGIN -->
+  <div class="banner"></div>
 
-<div class="welcome-title">
+  <div class="welcome-title">
   <h1>Welcome to EcoTrack!</h1>
 </div>
+  <div class="login-box">
+    <h2>LOGIN</h2>
+    <form method="POST" action="">
+      <input type="text" name="username" placeholder="Username" required 
+             style="<?php echo $error ? 'border: 2px solid red;' : ''; ?>">
+      <div class="password-container">
+        <input type="password" id="password" name="password" placeholder="Password" required
+               style="<?php echo $error ? 'border: 2px solid red;' : ''; ?>">
+        <span class="toggle-password" onclick="togglePassword()">
+          <i class="fas fa-eye"></i>
+        </span>
+      </div>
+      <?php if ($error): ?>
+        <div style="color: red; font-size: 14px; margin: 5px 0;"><?php echo $error; ?></div>
+      <?php endif; ?>
+      <button type="submit">Sign In</button>
+    </form>
 
-<div class="login-box">
-  <h2>LOGIN</h2>
-  <input type="text" placeholder="Username">
-  <input type="password" placeholder="Password">
-  <button>Sign In</button>
-
-  <div class="login-links">
-    <a href="registration.php">Register</a>
-    <a href="#" onclick="openModal()">Forget Password</a> <!-- only call openModal() -->
+    <div class="login-links">
+      <a href="registration.php">Register</a>
+      <a href="#" onclick="openModal()">Forget Password</a>
+    </div>
   </div>
-</div>
 
-<!-- INCLUDE THE MODAL SEPARATELY BELOW -->
-<?php include 'forgot_password_modal.php'; ?>
   
 
   <!-- CONTENT -->
@@ -368,7 +429,7 @@
         <div class="step step3">
           <h4>Step 3</h4>
           <strong>View Pickup Schedule</strong>
-          <p>Check the waste pickup schedule based on your location and ensure you’re ready for collection.</p>
+          <p>Check the waste pickup schedule based on your location and ensure you're ready for collection.</p>
         </div>
         <div class="step step4">
           <h4>Step 4</h4>
@@ -390,8 +451,7 @@
   <!-- FOOTER -->
   <?php include 'footer.php'; ?>
 
- <!-- Bootstrap JS -->
- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+ 
 
 </body>
 </html>
