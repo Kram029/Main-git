@@ -1,4 +1,27 @@
 <?php
+session_start();
+date_default_timezone_set('Asia/Manila'); // Set correct timezone
+
+include 'db.php';
+
+if (!isset($_SESSION['username'])) {
+    header("Location: Home.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Fetch admin details
+$query = "SELECT username FROM admin WHERE username = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$admin = $result->fetch_assoc();
+
+// Use 'username' directly since there's no 'name' column
+$adminName = $admin['username'];
+
 $conn = new mysqli("localhost", "root", "", "adbms");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
@@ -6,15 +29,24 @@ if ($conn->connect_error) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['add_schedule'])) {
+        $barangay = trim($_POST['barangay']);
+        if (!preg_match("/^[A-Za-z\s\-]{2,50}$/", $barangay)) {
+            die("Invalid Barangay name. Only letters, spaces, and hyphens allowed (2-50 chars).");
+        }
+
+        $date = $_POST['date'];
+        $today = date('Y-m-d');
+
+        $selectedDatetime = strtotime("$date {$_POST['time']}");
+        $currentDatetime = time();
+
+        if ($selectedDatetime < $currentDatetime) {
+             echo "<script>alert('Schedule datetime cannot be in the past.');</script>";
+            exit();
+        }
+        // Continue with schedule adding logic...
         $stmt = $conn->prepare("CALL AddSchedule(?, ?, ?, ?)");
         $stmt->bind_param("ssss", $_POST['barangay'], $_POST['date'], $_POST['time'], $_POST['status']);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    if (isset($_POST['update_schedule'])) {
-        $stmt = $conn->prepare("CALL UpdateSchedule(?, ?, ?, ?, ?)");
-        $stmt->bind_param("issss", $_POST['edit_id'], $_POST['barangay'], $_POST['date'], $_POST['time'], $_POST['status']);
         $stmt->execute();
         $stmt->close();
     }
@@ -26,11 +58,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     }
 
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . strtok($_SERVER["REQUEST_URI"], '?'));
     exit();
 }
 
-// Fetch current row for editing
 $editData = null;
 if (isset($_GET['edit_id'])) {
     $id = intval($_GET['edit_id']);
@@ -45,7 +76,6 @@ if (isset($_GET['edit_id'])) {
     <meta charset="UTF-8">
     <title>EcoTrack - Schedules</title>
     <style>
-        /* Your existing styles here */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -53,37 +83,38 @@ if (isset($_GET['edit_id'])) {
             font-family: Arial, sans-serif;
         }
         body { background-color: #f2f2f2; }
+
         header {
-            background-color: #2e7d32; color: white;
+            background-color: #2e7d32;
+            color: white;
             padding: 15px 20px;
-            display: flex; justify-content: space-between;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
         }
+
+        header h1 { font-size: 32px; }
+        header p { font-size: 18px; }
         .logout { color: white; font-size: 14px; text-decoration: none; }
-        .container { display: flex; height: calc(100vh - 70px); }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 70px);
+        }
+
         .sidebar {
             background-color: #ffffff;
             width: 200px;
             padding: 20px 10px;
             border-right: 1px solid #ccc;
         }
-        .nav-button {
-            display: flex; align-items: center;
-            width: 100%; padding: 10px;
-            background-color: transparent;
-            border: none;
-            text-align: left; font-size: 16px;
-            cursor: pointer; margin-bottom: 5px;
-            text-decoration: none; color: black;
-        }
-        .nav-button.active {
-            background-color: #388e3c;
-            color: white; font-weight: bold;
-            border-radius: 6px;
-        }
+
         .main {
-            flex-grow: 1; padding: 30px; overflow-y: auto;
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
         }
+
         .welcome {
             background-color: #a5d6a7;
             padding: 15px 20px;
@@ -91,43 +122,128 @@ if (isset($_GET['edit_id'])) {
             font-size: 18px;
             font-weight: bold;
         }
-        .search-bar { text-align: right; margin-top: 20px; }
-        .search-bar input {
-            padding: 8px; font-size: 14px; width: 200px;
-        }
+
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             background-color: #ffffff;
         }
+
         th, td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: center;
         }
-        th { background-color: #c8e6c9; }
+
+        th {
+            background-color: #c8e6c9;
+        }
+
         .actions a {
             color: #1565c0;
             text-decoration: none;
             margin-right: 8px;
         }
+
         .actions button {
             color: #d32f2f;
             border: none;
             background: none;
             cursor: pointer;
         }
+
         .footer {
             margin-top: 40px;
             text-align: center;
             font-size: 12px;
             color: gray;
         }
-        .footer p { margin: 4px 0; }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px 25px;
+            width: 300px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background-color: #2e7d32;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: yellow;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .modal-content label {
+            display: block;
+            text-align: left;
+            margin: 12px 0 4px;
+            font-weight: bold;
+        }
+
+        .modal-content input[type="text"],
+        .modal-content input[type="date"],
+        .modal-content input[type="time"],
+        .modal-content select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        .modal-content button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            margin-top: 20px;
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+        }
+        
     </style>
 </head>
 <body>
+
 
 <header>
     <div>
@@ -136,7 +252,6 @@ if (isset($_GET['edit_id'])) {
     </div>
     <div>
         <p><?php echo date("l, F d, Y"); ?></p>
-        <a class="logout" href="#">LOG OUT</a>
     </div>
 </header>
 
@@ -144,22 +259,20 @@ if (isset($_GET['edit_id'])) {
     <?php include 'sidebar.php'; ?>
 
     <div class="main">
-        <div class="welcome">Welcome, Admin [username]!</div>
+        <div class="welcome">Welcome, <?= htmlspecialchars($adminName) ?>!</div>
 
-        <div class="search-bar">
-            <input type="text" placeholder="Search">
-        </div>
+        <button class="add-btn" onclick="openAddModal()">+ Add Schedule</button>
 
         <table>
             <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Barangay</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
+            <tr>
+                <th>ID</th>
+                <th>Barangay</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
             </thead>
             <tbody>
             <?php
@@ -170,7 +283,7 @@ if (isset($_GET['edit_id'])) {
                         <td>{$schedule['id']}</td>
                         <td>{$schedule['barangay']}</td>
                         <td>{$schedule['date']}</td>
-                        <td>{$schedule['time']}</td>
+                        <td>" . date("g:i A", strtotime($schedule['time'])) . "</td>
                         <td>{$schedule['status']}</td>
                         <td class='actions'>
                             <a href='?edit_id={$schedule['id']}'>Edit</a>
@@ -188,54 +301,6 @@ if (isset($_GET['edit_id'])) {
             </tbody>
         </table>
 
-        <br>
-
-        <?php if ($editData): ?>
-            <h3>Edit Schedule</h3>
-            <form method="post" style="background:#fff; padding:20px; border-radius:8px;">
-                <input type="hidden" name="edit_id" value="<?= $editData['id'] ?>">
-                <label>Barangay:</label><br>
-                <input type="text" name="barangay" value="<?= $editData['barangay'] ?>" required><br><br>
-
-                <label>Date:</label><br>
-                <input type="date" name="date" value="<?= $editData['date'] ?>" required><br><br>
-
-                <label>Time:</label><br>
-                <input type="time" name="time" value="<?= $editData['time'] ?>" required><br><br>
-
-                <label>Status:</label><br>
-                <select name="status" required>
-                    <option value="Pending" <?= $editData['status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
-                    <option value="Scheduled" <?= $editData['status'] == 'Scheduled' ? 'selected' : '' ?>>Scheduled</option>
-                </select><br><br>
-
-                <button type="submit" name="update_schedule" style="background-color: #2e7d32; color: white; padding: 10px 15px; border: none; border-radius: 4px;">Update Schedule</button>
-            </form>
-        <?php else: ?>
-            <button id="showFormButton" style="margin-top: 20px; background-color: #4caf50; color: white; padding: 10px 20px; border: none; border-radius: 5px;">+ Add Schedule</button>
-
-            <div id="addScheduleForm" style="display: none; margin-top: 20px; background-color: #fff; padding: 20px; border-radius: 8px;">
-                <form method="post">
-                    <label>Barangay:</label><br>
-                    <input type="text" name="barangay" required><br><br>
-
-                    <label>Date:</label><br>
-                    <input type="date" name="date" required><br><br>
-
-                    <label>Time:</label><br>
-                    <input type="time" name="time" required><br><br>
-
-                    <label>Status:</label><br>
-                    <select name="status" required>
-                        <option value="Pending">Pending</option>
-                        <option value="Scheduled">Scheduled</option>
-                    </select><br><br>
-
-                    <button type="submit" name="add_schedule" style="background-color: #2e7d32; color: white; padding: 10px 15px; border: none; border-radius: 4px;">Add Schedule</button>
-                </form>
-            </div>
-        <?php endif; ?>
-
         <div class="footer">
             <p>Privacy Statement | Terms and Condition | Privacy Policy</p>
             <p>&copy;2025 EcoTrack. All Rights Reserved.</p>
@@ -243,11 +308,125 @@ if (isset($_GET['edit_id'])) {
     </div>
 </div>
 
+<!-- Add Modal -->
+<div class="modal-overlay" id="addModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Add Pickup Schedule</h2>
+            <button class="close-btn" onclick="closeAddModal()">&times;</button>
+        </div>
+        <div id="addScheduleError" style="color: red; margin-bottom: 10px; display: none;"></div>
+        <form method="post" id="addScheduleFormElement">
+            <label>Barangay:</label>
+            <input type="text" id="barangay" name="barangay" pattern="[A-Za-z\s\-]{2,50}" required
+                   title="Barangay must be 2-50 letters, spaces, or hyphens only.">
+
+            <label>Date:</label>
+            <input type="date" name="date" required min="<?= date('Y-m-d'); ?>">
+
+            <label>Time:</label>
+            <input type="time" name="time" required>
+
+            <label>Status:</label>
+            <select name="status" required>
+                <option value="Pending">Pending</option>
+                <option value="Scheduled">Scheduled</option>
+            </select>
+
+            <button type="submit" name="add_schedule">Add Schedule</button>
+        </form>
+    </div>
+</div>
+
+<?php if ($editData): ?>
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Pickup Schedule</h2>
+                <form method="get" style="margin:0;">
+                    <button class="close-btn" title="Close" name="cancel" value="1">&times;</button>
+                </form>
+            </div>
+            <form method="post">
+                <input type="hidden" name="edit_id" value="<?= $editData['id'] ?>">
+
+                <label>Barangay:</label>
+                <p style="text-align:left;"><?= htmlspecialchars($editData['barangay']) ?></p>
+                <input type="hidden" name="barangay" value="<?= htmlspecialchars($editData['barangay']) ?>">
+
+                <label>Date:</label>
+                <input type="date" name="date" value="<?= $editData['date'] ?>" required min="<?= date('Y-m-d'); ?>">
+
+                <label>Time:</label>
+                <input type="time" name="time" value="<?= $editData['time'] ?>" required>
+
+                <label>Status:</label>
+                <select name="status" required>
+                    <option value="Pending" <?= $editData['status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
+                    <option value="Scheduled" <?= $editData['status'] == 'Scheduled' ? 'selected' : '' ?>>Scheduled</option>
+                </select>
+
+                <button type="submit" name="update_schedule">Save Changes</button>
+            </form>
+        </div>
+    </div>
+<?php endif; ?>
+
 <script>
-    document.getElementById('showFormButton')?.addEventListener('click', function () {
-        const form = document.getElementById('addScheduleForm');
-        form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("addScheduleFormElement");
+        const barangay = document.getElementById("barangay");
+        const dateInput = form.querySelector("input[name='date']");
+        const errorDiv = document.getElementById("addScheduleError");
+
+        errorDiv.style.display = "none";
+
+        form.addEventListener("submit", function (e) {
+            let hasError = false;
+            const today = new Date().toISOString().split('T')[0];
+
+            const pattern = /^[A-Za-z\s\-]{2,50}$/;
+            if (!pattern.test(barangay.value.trim())) {
+                barangay.setCustomValidity("Invalid Barangay name.");
+                barangay.reportValidity();
+                e.preventDefault();
+                hasError = true;
+            } else {
+                barangay.setCustomValidity("");
+            }
+
+          const selectedDate = dateInput.value;
+const selectedTime = form.querySelector("input[name='time']").value;
+
+if (selectedDate < today) {
+    errorDiv.textContent = "Schedule date cannot be in the past.";
+    errorDiv.style.display = "block";
+    dateInput.setCustomValidity("Date must not be in the past.");
+    dateInput.reportValidity();
+    e.preventDefault();
+    hasError = true;
+} else if (selectedDate === today) {
+    const currentTime = new Date().toTimeString().slice(0,5); // format: HH:MM
+    if (selectedTime < currentTime) {
+        errorDiv.textContent = "Time must not be in the past for today's schedule.";
+        errorDiv.style.display = "block";
+        form.querySelector("input[name='time']").setCustomValidity("Invalid time.");
+        form.querySelector("input[name='time']").reportValidity();
+        e.preventDefault();
+        hasError = true;
+    }
+}
+
+        });
+    }); 
+
+    function openAddModal() {
+        document.getElementById('addModal').style.display = 'flex';
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModal').style.display = 'none';
+    }
 </script>
 
 </body>
