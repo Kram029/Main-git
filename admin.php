@@ -1,14 +1,48 @@
 <?php
-include 'db.php'; // Make sure this is correct and accessible
+session_start();
+include 'db.php';
+
+
+if (!isset($_SESSION['username'])) {
+    // Redirect to login page if not logged in
+    header("Location: Home.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Fetch admin details
+$query = "SELECT username FROM admin WHERE username = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$admin = $result->fetch_assoc();
+
+// Use 'username' directly since there's no 'name' column
+$adminName = $admin['username'];
 
 $user_count = 0;
-$result = $conn->query("SELECT COUNT(*) as total FROM users");
+$result = $conn->query("SELECT COUNT(*) as total FROM table_users_registration");
 if ($result && $row = $result->fetch_assoc()) {
     $user_count = $row['total'];
 }
 
+$sched_count = 0;
+$result = $conn->query("SELECT COUNT(*) as total FROM schedules");
+if ($result && $row = $result->fetch_assoc()) {
+    $sched_count = $row['total'];
+}
+
 $sql_schedule = "SELECT date, time, barangay FROM schedules WHERE date = CURDATE()";
 $result_schedule = $conn->query($sql_schedule);
+
+$report_count = 0;
+$result_reports = $conn->query("SELECT COUNT(*) as total FROM contacts");
+if ($result_reports && $row = $result_reports->fetch_assoc()) {
+    $report_count = $row['total'];
+}
+
 
 $conn->close();
 ?>
@@ -175,8 +209,7 @@ $conn->close();
     <p>Smarter Waste, Greener Cities</p>
   </div>
   <div>
-    <p>Thursday, April 03, 2025</p>
-    <a class="logout" href="#">LOG OUT</a>
+    <p><?= date('l, F d, Y') ?></p>
   </div>
 </header>
 
@@ -184,8 +217,8 @@ $conn->close();
   <?php include 'sidebar.php'; ?>
 
   <div class="main">
-    <div class="welcome">Welcome, Admin [username]!</div>
-
+    <div class="welcome">Welcome, <?= htmlspecialchars($adminName) ?>!</div>
+    
     <div class="cards">
       <div class="card">
         <h2>Users</h2>
@@ -193,11 +226,11 @@ $conn->close();
       </div>
       <div class="card">
         <h2>Waste Collections</h2>
-        <p>0</p>
+        <p><?= $sched_count ?></p>
       </div>
       <div class="card">
         <h2>Reports</h2>
-        <p>0</p>
+        <p><?= $report_count ?></p>
       </div>
     </div>
 
@@ -212,18 +245,19 @@ $conn->close();
       </thead>
       <tbody>
       <?php
-        if ($result_schedule && $result_schedule->num_rows > 0) {
-            while ($row = $result_schedule->fetch_assoc()) {
-                echo "<tr>
-                        <td>{$row['date']}</td>
-                        <td>{$row['time']}</td>
-                        <td>{$row['barangay']}</td>
-                      </tr>";
-            }
-        } else {
-            echo "<tr><td colspan='3'>No pickup schedules for today.</td></tr>";
-        }
-        ?>
+if ($result_schedule && $result_schedule->num_rows > 0) {
+    while ($row = $result_schedule->fetch_assoc()) {
+        echo "<tr>
+                <td>{$row['date']}</td>
+                <td>" . date("g:i A", strtotime($row['time'])) . "</td>
+                <td>{$row['barangay']}</td>
+              </tr>";
+    }
+} else {
+    echo "<tr><td colspan='3'>No pickup schedules for today.</td></tr>";
+}
+?>
+
       </tbody>
     </table>
 
