@@ -1,3 +1,48 @@
+<?php
+session_start();
+include 'db.php';
+
+
+if (!isset($_SESSION['username'])) {
+    // Redirect to login page if not logged in
+    header("Location: Home.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Fetch admin details
+$query = "SELECT username FROM admin WHERE username = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$admin = $result->fetch_assoc();
+
+// Use 'username' directly since there's no 'name' column
+$adminName = $admin['username'];
+
+// Handle form submission for password change
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $new_password = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    if ($new_password === $confirm_password) {
+        // Call stored procedure to update password
+        $query = "CALL UpdateAdminPassword(?, ?)";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ss", $username, $new_password);
+        $stmt->execute();
+        $stmt->close();
+
+        echo "<script>alert('Password updated successfully!');</script>";
+    } else {
+        echo "<script>alert('Passwords do not match.');</script>";
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,20 +62,20 @@
 
     /* Header */
     header {
-      background-color: #2f8d44;
+      background-color: #2e7d32;
       color: white;
-      padding: 20px;
+      padding: 15px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     header h1 {
-      font-size: 20px;
+      font-size: 32px;
     }
 
     header p {
-      font-size: 14px;
+      font-size: 18px;
     }
 
     .logout {
@@ -140,8 +185,8 @@
     <p>Smarter Waste, Greener Cities</p>
   </div>
   <div>
-    <p>Thursday, April 03, 2025</p>
-    <a class="logout" href="#">LOG OUT</a>
+    <p><?= date('l, F d, Y') ?></p>
+ 
   </div>
 </header>
 
@@ -149,41 +194,32 @@
   <?php include 'sidebar.php'; ?>
 
   <div class="main">
-    <div class="welcome">Welcome, Admin [username]!</div>
+    <div class="welcome">Welcome, <?= htmlspecialchars($adminName) ?>!</div>
 
     <div class="settings-box">
       <h3>Profile Settings</h3>
+      <br>
 
-      <div class="form-group">
-        <label>Admin Name</label>
-        <input type="text" value="John Doe">
-      </div>
+     <div class="form-group">
+  <label>Admin Username</label>
+  <input type="text" value="<?= htmlspecialchars($adminName) ?>" readonly>
+</div>
 
-      <div class="form-group">
-        <label>Admin Email</label>
-        <input type="email" value="john@example.com">
-      </div>
 
-      <div class="form-group">
-        <label>New Password</label>
-        <input type="password">
-      </div>
+<form method="POST">
+  <div class="form-group">
+    <label>New Password</label>
+    <input type="password" name="new_password" required>
+  </div>
 
-      <div class="form-group">
-        <label>Confirm Password</label>
-        <input type="password">
-      </div>
+  <div class="form-group">
+    <label>Confirm Password</label>
+    <input type="password" name="confirm_password" required>
+  </div>
 
-      <div class="settings-section">
-        <h4>Notification Settings</h4>
-        <div class="checkbox-group aligned-checkbox">
-          <input type="checkbox" id="email">
-          <label for="email">Email Notification</label>
-        </div>
-      </div>
+  <button type="submit" class="save-btn">Save Changes</button>
+</form>
 
-      <button class="save-btn">Save Changes</button>
-    </div>
 
     <div class="footer">
       <p>Privacy Statement | Terms and Condition | Privacy Policy</p>
