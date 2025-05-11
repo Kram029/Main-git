@@ -61,6 +61,7 @@
   <a href="admin(users).php" class="nav-button <?= basename($_SERVER['PHP_SELF']) == 'admin(users).php' ? 'active' : '' ?>"><i>👥</i> Users</a>
   <a href="admin(sched).php" class="nav-button <?= basename($_SERVER['PHP_SELF']) == 'admin(sched).php' ? 'active' : '' ?>"><i>🗓️</i> Schedules</a>
   <a href="admin(report).php" class="nav-button <?= basename($_SERVER['PHP_SELF']) == 'admin(report).php' ? 'active' : '' ?>"><i>📄</i> Reports</a>
+    <a href="admin(messages).php" class="nav-button <?= basename($_SERVER['PHP_SELF']) == 'admin(messages).php' ? 'active' : '' ?>"><i>📩</i> Messages</a>
   <a href="admin(settings).php" class="nav-button <?= basename($_SERVER['PHP_SELF']) == 'admin(settings).php' ? 'active' : '' ?>"><i>⚙️</i> Settings</a>
 
   <a href="Home.php" class="logout-button" onclick="return confirmLogout()">🚪 Log Out</a>
