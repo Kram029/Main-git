@@ -18,12 +18,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   if (empty($emailErr)) {
     // Connect to MySQL
-    $conn = new mysqli("localhost", "root", "", "ecotrackdb");
+    $conn = new mysqli("localhost", "root", "", "adbms");
     if ($conn->connect_error) {
       $successMsg = "Database connection failed: " . $conn->connect_error;
     } else {
       // Check if user exists
-      $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+      $stmt = $conn->prepare("SELECT id FROM table_users_registration WHERE email = ?");
       $stmt->bind_param("s", $email);
       $stmt->execute();
       $stmt->store_result();
@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // User exists, generate token
         $token = bin2hex(random_bytes(32));
         $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
-        $update = $conn->prepare("UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?");
+        $update = $conn->prepare("UPDATE table_users_registration SET reset_token = ?, reset_token_expiry = ? WHERE email = ?");
         $update->bind_param("sss", $token, $expiry, $email);
         if ($update->execute()) {
           // Send email (for demo, just show the link)
@@ -102,11 +102,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       width: 100%; padding: 12px; margin-top: 12px;
       border: none; border-radius: 5px; font-size: 16px;
     }
-    .contact-form button {
-      margin-top: 20px; padding: 12px 24px;
-      border: none; background-color: #2c6b2f;
-      color: white; font-weight: bold; border-radius: 5px;
-      font-size: 20px;
+    .btn-uniform {
+      background-color: #198754 !important;
+      color: #fff !important;
+      min-width: 180px;
+      height: 48px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      display: inline-block;
+      text-align: center;
+      line-height: 48px;
+      font-weight: bold;
+      transition: background 0.2s;
+      text-decoration: none !important;
+      box-shadow: none;
+    }
+    .btn-uniform:hover, .btn-uniform:focus {
+      background-color: #157347 !important;
+      color: #fff !important;
+      text-decoration: none !important;
     }
     .error { color: red; font-size: 14px; }
     .success { color: green; font-size: 18px; margin-bottom: 10px; font-weight: bold; }
@@ -156,7 +171,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
       <input type="email" name="email" placeholder="Enter Your Email Address" value="<?php echo htmlspecialchars($email); ?>" required />
       <div class="error"><?php echo $emailErr; ?></div>
-      <button type="submit">Send Reset Link</button>
+      <div class="d-flex justify-content-center gap-2 mt-3">
+        <button type="submit" a href="reset_password.php" class="btn-uniform">Send Reset Link</button>
+        <a href="Home.php" class="btn-uniform" role="button">Back to Home</a>
+      </div>
     </form>
   </div>
 
@@ -176,3 +194,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
