@@ -1,10 +1,48 @@
 <?php
+session_start();
+include 'db.php';
+
+if (!isset($_SESSION['username'])) {
+    header("Location: Home.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+// Fetch admin details
+$query = "SELECT username FROM admin WHERE username = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+$admin = $result->fetch_assoc();
+
+$adminName = $admin['username'];
+
 $conn = new mysqli("localhost", "root", "", "adbms");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-$result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
+
+$success_message = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resolve_id'])) {
+    $id = (int) $_POST['resolve_id'];
+    $stmt = $conn->prepare("DELETE FROM reports WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    if ($stmt->execute()) {
+        $success_message = "✅ Report ID $id has been resolved successfully.";
+    } else {
+        $success_message = "❌ Failed to resolve the report.";
+    }
+    $stmt->close();
+}
+
+$result = $conn->query("SELECT * FROM reports ORDER BY created_at DESC");
 ?>
+
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -145,7 +183,6 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
     </div>
     <div>
         <p><?php echo date("l, F d, Y"); ?></p>
-        <a class="logout" href="#">LOG OUT</a>
     </div>
 </header>
 
@@ -153,14 +190,20 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
     <?php include 'sidebar.php'; ?>
 
     <div class="main">
-        <div class="welcome">Welcome, Admin!</div>
+        <div class="welcome">Welcome, <?= htmlspecialchars($adminName) ?>!</div>
+
+        <?php if (!empty($success_message)) : ?>
+            <p style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 10px; border-radius: 5px; margin: 20px 0;">
+                <?php echo $success_message; ?>
+            </p>
+        <?php endif; ?>
 
         <table>
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
+                <th>Title</th>
+                <th>Content</th>
                 <th>Date</th>
                 <th>Actions</th>
             </tr>
@@ -169,16 +212,18 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
             <?php while ($row = $result->fetch_assoc()) : ?>
                 <tr>
                     <td><?php echo $row['id']; ?></td>
-                    <td><?php echo htmlspecialchars($row['name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['email']); ?></td>
-                    <td><?php echo $row['created_at']; ?></td>
+                    <td><?php echo htmlspecialchars($row['report_title']); ?></td>
+                    <td><?php echo htmlspecialchars(substr($row['report_content'], 0, 50)) . '...'; ?></td>
+                    <td><?php echo date("F j, Y, g:i A", strtotime($row['created_at'])); ?></td>
+
                     <td class="actions">
                         <a href="#" onclick="openModal(
-                            '<?php echo htmlspecialchars(addslashes($row['name'])); ?>',
-                            '<?php echo htmlspecialchars(addslashes($row['email'])); ?>',
-                            '<?php echo htmlspecialchars(addslashes($row['created_at'])); ?>',
-                            `<?php echo htmlspecialchars(addslashes($row['message'])); ?>`
-                        )">View</a>
+                            <?php echo $row['id']; ?>,
+                            '<?php echo htmlspecialchars(addslashes($row['report_title'])); ?>',
+                            '<?php echo date("F j, Y, g:i A", strtotime($row['created_at'])); ?>',
+
+                            `<?php echo htmlspecialchars(addslashes($row['report_content'])); ?>`
+                        ) ">View</a>
                     </td>
                 </tr>
             <?php endwhile; ?>
@@ -196,25 +241,39 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
 <div id="myModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>Contact Message Details</h3>
+            <h3>Report Details</h3>
             <span class="close" onclick="closeModal()">&times;</span>
         </div>
         <div class="modal-body">
-            <p><strong>Name:</strong> <span id="modalName"></span></p>
-            <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+            <p><strong>Title:</strong> <span id="modalTitle"></span></p>
             <p><strong>Date:</strong> <span id="modalDate"></span></p>
-            <p><strong>Message:</strong></p>
-            <p id="modalMessage" style="white-space: pre-wrap;"></p>
+            <p><strong>Content:</strong></p>
+            <p id="modalContent" style="white-space: pre-wrap;"></p>
+
+            <div style="margin-top: 20px; text-align: right;">
+                <form id="resolveForm" method="post" style="display: inline;">
+                    <input type="hidden" name="resolve_id" id="resolveId">
+                    <button type="submit" style="
+                        background-color: #2e7d32;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 6px;
+                        font-weight: bold;
+                        cursor: pointer;
+                    ">Resolve</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-function openModal(name, email, date, message) {
-    document.getElementById('modalName').textContent = name;
-    document.getElementById('modalEmail').textContent = email;
+function openModal(id, title, date, content) {
+    document.getElementById('modalTitle').textContent = title;
     document.getElementById('modalDate').textContent = date;
-    document.getElementById('modalMessage').textContent = message;
+    document.getElementById('modalContent').textContent = content;
+    document.getElementById('resolveId').value = id;
     document.getElementById('myModal').style.display = 'flex';
 }
 function closeModal() {
@@ -224,3 +283,4 @@ function closeModal() {
 
 </body>
 </html>
+    
