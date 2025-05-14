@@ -27,6 +27,10 @@ $barangays = [];
 if (isset($_POST['region']) && $_POST['region'] !== '') {
     $region = $_POST['region'];
 }
+if ($region == 1) { // 1 = CALABARZON
+    $province = 1; // Batangas
+    $city = 1;     // Lipa City
+}
 if (isset($_POST['province']) && $_POST['province'] !== '') {
     $province = $_POST['province'];
 }
@@ -134,6 +138,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $xconfirm = "Passwords do not match.";
   }
 
+  // Check for existing username, email, or contact in the database
+  if (!$xusername) {
+    $stmt = $conn->prepare("SELECT 1 FROM table_users_registration WHERE username = ? LIMIT 1");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+      $xusername = "This username is already taken. Please choose another.";
+    }
+    $stmt->close();
+  }
+  if (!$xemail) {
+    $stmt = $conn->prepare("SELECT 1 FROM table_users_registration WHERE email = ? LIMIT 1");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+      $xemail = "This email is already registered. Please use another email address.";
+    }
+    $stmt->close();
+  }
+  if (!$xcontact) {
+    $stmt = $conn->prepare("SELECT 1 FROM table_users_registration WHERE contact = ? LIMIT 1");
+    $stmt->bind_param("s", $contact);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+      $xcontact = "This contact number is already registered. Please use another number.";
+    }
+    $stmt->close();
+  }
+
   // IF NO ERRORS, INSERT INTO DATABASE
   if (!$xfullname && !$xemail && !$xcontact && !$xstreet && !$xusername && !$xpassword && !$xconfirm) {
     // Hash the password first!
@@ -229,6 +265,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       border-bottom: 2px solid #333;
       padding: 20px;
       color: #000;
+      font-family: 'Quattrocento', serif;
     }
     form {
       padding: 0 20px 20px;
@@ -292,7 +329,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <div class="form-container">
   <div class="form-box">
     <div class="logo-bar">
-      <img src="ecotrack.png" alt="EcoTrack Logo Main">
+      <img src="ecotrack.webp" alt="EcoTrack Logo Main">
     </div>
 
     <h2 class="text-center my-3">EcoTrackers Registration Form</h2>
@@ -331,22 +368,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       
       <div class="mb-3">
         <label for="region" class="form-label">Current Address</label>
-        
-        <select name="region" id="region" class="form-select mb-2" onchange="this.form.submit()">
+        <select name="region" id="region" class="form-select mb-2">
           <option value="">Select Region</option>
-          <?php foreach ($regions as $reg): ?>
+          <?php foreach (
+            $regions as $reg): ?>
             <option value="<?= $reg['id'] ?>" <?= $reg['id'] == $region ? 'selected' : '' ?>><?= htmlspecialchars($reg['name']) ?></option>
           <?php endforeach; ?>
         </select>
 
-        <select name="province" id="province" class="form-select mb-2" onchange="this.form.submit()">
+        <select name="province" id="province" class="form-select mb-2">
           <option value="">Select Province</option>
           <?php foreach ($provinces as $prov): ?>
             <option value="<?= $prov['id'] ?>" <?= $prov['id'] == $province ? 'selected' : '' ?>><?= htmlspecialchars($prov['name']) ?></option>
           <?php endforeach; ?>
         </select>
 
-        <select name="city" id="city" class="form-select mb-2" onchange="this.form.submit()">
+        <select name="city" id="city" class="form-select mb-2">
           <option value="">Select City / Municipality</option>
           <?php foreach ($cities as $cty): ?>
             <option value="<?= $cty['id'] ?>" <?= $cty['id'] == $city ? 'selected' : '' ?>><?= htmlspecialchars($cty['name']) ?></option>
@@ -369,7 +406,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="username" class="form-label">Username</label>
         <input id="username" type="text" name="username" placeholder="Input Username"
         class="form-control <?= $xusername ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($username) ?>">
-        <?php if ($xusername): ?><div class="invalid-feedback"><?= $xusername ?></div><?php endif; ?>
+        <?php if ($xusername): ?>
+          <div class="alert alert-danger mt-2" role="alert">
+            <?= $xusername ?>
+          </div>
+        <?php endif; ?>
       </div>
 
    
@@ -382,7 +423,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <i class="fas fa-eye"></i>
           </span>
         </div>
-        <?php if ($xpassword): ?><div class="invalid-feedback"><?= $xpassword ?></div><?php endif; ?>
+        <?php if ($xpassword): ?>
+          <div class="alert alert-danger mt-2" role="alert">
+            <?= $xpassword ?>
+          </div>
+        <?php endif; ?>
       </div>
 
      
@@ -395,7 +440,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <i class="fas fa-eye"></i>
           </span>
         </div>
-        <?php if ($xconfirm): ?><div class="invalid-feedback"><?= $xconfirm ?></div><?php endif; ?>
+        <?php if ($xconfirm): ?>
+          <div class="alert alert-danger mt-2" role="alert">
+            <?= $xconfirm ?>
+          </div>
+        <?php endif; ?>
       </div>
 
       <button type="submit" class="btn btn-success w-100">SUBMIT</button>
@@ -424,6 +473,82 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         icon.classList.add('fa-eye');
       }
     }
+
+    // AJAX for cascading dropdowns
+    function fetchOptions(type, id, callback) {
+      fetch('get_places.php?type=' + type + '&id=' + id)
+        .then(response => response.json())
+        .then(callback);
+    }
+
+    const regionSelect = document.getElementById('region');
+    const provinceSelect = document.getElementById('province');
+    const citySelect = document.getElementById('city');
+    const barangaySelect = document.getElementById('barangay');
+
+    regionSelect.addEventListener('change', function() {
+      const regionId = this.value;
+      if(regionId) {
+        // Special case: CALABARZON (region_id=1)
+        if(regionId == '1') {
+          // Auto-select Batangas (province_id=1)
+          provinceSelect.innerHTML = '<option value="1" selected>Batangas</option>';
+          // Auto-select Lipa City (municipality_id=1)
+          citySelect.innerHTML = '<option value="1" selected>Lipa City</option>';
+          // Load barangays for Lipa City
+          fetchOptions('barangay', 1, function(data) {
+            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+            data.forEach(function(barangay) {
+              barangaySelect.innerHTML += `<option value="${barangay.barangay_id}">${barangay.barangay_name}</option>`;
+            });
+          });
+        } else {
+          // Normal: load provinces
+          fetchOptions('province', regionId, function(data) {
+            provinceSelect.innerHTML = '<option value="">Select Province</option>';
+            data.forEach(function(province) {
+              provinceSelect.innerHTML += `<option value="${province.province_id}">${province.province_name}</option>`;
+            });
+            citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
+            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+          });
+        }
+      } else {
+        provinceSelect.innerHTML = '<option value="">Select Province</option>';
+        citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+      }
+    });
+
+    provinceSelect.addEventListener('change', function() {
+      const provinceId = this.value;
+      if(provinceId) {
+        fetchOptions('city', provinceId, function(data) {
+          citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
+          data.forEach(function(city) {
+            citySelect.innerHTML += `<option value="${city.municipality_id}">${city.municipality_name}</option>`;
+          });
+          barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        });
+      } else {
+        citySelect.innerHTML = '<option value="">Select City / Municipality</option>';
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+      }
+    });
+
+    citySelect.addEventListener('change', function() {
+      const cityId = this.value;
+      if(cityId) {
+        fetchOptions('barangay', cityId, function(data) {
+          barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+          data.forEach(function(barangay) {
+            barangaySelect.innerHTML += `<option value="${barangay.barangay_id}">${barangay.barangay_name}</option>`;
+          });
+        });
+      } else {
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+      }
+    });
   </script>
 </body>
 </html>
