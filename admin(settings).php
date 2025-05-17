@@ -56,11 +56,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       font-family: Arial, sans-serif;
     }
 
-    body {
-      background-color: #f3f3f3;
+   body {
+      margin: 0;
+      overflow: hidden;
     }
 
-    /* Header */
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('truck1.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
     header {
       background-color: #2e7d32;
       color: white;
@@ -68,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative; 
     }
 
     header h1 {
@@ -86,7 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     .container {
       display: flex;
-      height: calc(100vh - 80px); /* height excluding header */
+      height: calc(100vh - 80px);
+      position: relative; 
     }
 
     /* Main content */
@@ -94,6 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       flex-grow: 1;
       padding: 30px;
       overflow-y: auto;
+      position: relative; 
+      background-color: rgba(242, 242, 242, 0.8);
     }
 
     .welcome {
@@ -178,6 +193,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   </style>
 </head>
 <body>
+
+<div class="background-image"></div>
 
 <header>
   <div>
