@@ -56,9 +56,24 @@ $result = $conn->query("SELECT * FROM reports ORDER BY created_at DESC");
             padding: 0;
             font-family: Arial, sans-serif;
         }
+        
         body {
-            background-color: #f2f2f2;
-        }
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('truck1.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
+
         header {
             background-color: #2e7d32;
             color: white;
@@ -66,9 +81,12 @@ $result = $conn->query("SELECT * FROM reports ORDER BY created_at DESC");
             display: flex;
             justify-content: space-between;
             align-items: center;
+             position: relative; 
         }
+
         header h1 { font-size: 20px; }
         header p { font-size: 14px; }
+        
         .logout {
             color: white;
             font-size: 14px;
@@ -77,11 +95,14 @@ $result = $conn->query("SELECT * FROM reports ORDER BY created_at DESC");
         .container {
             display: flex;
             height: calc(100vh - 80px);
+            position: relative;
         }
         .main {
             flex-grow: 1;
             padding: 30px;
             overflow-y: auto;
+            position: relative; 
+             background-color: rgba(242, 242, 242, 0.8);
         }
         .welcome {
             background-color: #a5d6a7;
@@ -175,6 +196,8 @@ $result = $conn->query("SELECT * FROM reports ORDER BY created_at DESC");
     </style>
 </head>
 <body>
+
+<div class="background-image"></div>
 
 <header>
     <div>
