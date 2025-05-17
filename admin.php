@@ -38,7 +38,7 @@ $sql_schedule = "SELECT date, time, barangay FROM schedules WHERE date = CURDATE
 $result_schedule = $conn->query($sql_schedule);
 
 $report_count = 0;
-$result_reports = $conn->query("SELECT COUNT(*) as total FROM contacts");
+$result_reports = $conn->query("SELECT COUNT(*) as total FROM reports");
 if ($result_reports && $row = $result_reports->fetch_assoc()) {
     $report_count = $row['total'];
 }
@@ -60,8 +60,21 @@ $conn->close();
       font-family: Arial, sans-serif;
     }
 
-    body {
-      background-color: #f2f2f2;
+     body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('truck1.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      z-index: -1;
     }
 
     header {
@@ -71,6 +84,7 @@ $conn->close();
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative; 
     }
 
     header h1 {
@@ -90,6 +104,8 @@ $conn->close();
     .container {
       display: flex;
       height: calc(100vh - 70px);
+       position: relative;
+       
     }
 
     .sidebar {
@@ -97,6 +113,7 @@ $conn->close();
       width: 200px;
       padding: 20px 10px;
       border-right: 1px solid #ccc;
+      position: relative;
     }
 
     .nav-button {
@@ -129,6 +146,8 @@ $conn->close();
       flex-grow: 1;
       padding: 30px;
       overflow-y: auto;
+      position: relative; 
+      background-color: rgba(242, 242, 242, 0.8);
     }
 
     .welcome {
@@ -202,6 +221,8 @@ $conn->close();
   </style>
 </head>
 <body>
+
+<div class="background-image"></div>
 
 <header>
   <div>
