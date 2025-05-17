@@ -90,7 +90,7 @@
           <li class="nav-item"><a class="nav-link" href="Home.php">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="FAQs.php">FAQs</a></li>
           <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
-          <li class="nav-item"><a class="nav-link" href="contacts.php">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="submit_contact.php">Contact</a></li>
         </ul>
       </div>
     </div>

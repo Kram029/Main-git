@@ -10,7 +10,7 @@
 
   <style>
     body {
-      background-image: url('truck1.png');
+      background-image: url('background.jpg');
       background-size: cover;
       background-repeat: no-repeat;
       background-attachment: fixed;
@@ -18,60 +18,13 @@
       font-family: 'Quattrocento', serif;
       padding-top: 0px;
     }
-      
 
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(255, 255, 255, 0.5);
+      background: rgba(255, 255, 255, 0.6);
       z-index: -1;
-    }
-
-    .navbar {
-    background-color: #2c6b2f;
-    color: white;
-    position: relative;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000; /* Ensure the navbar is on top of other elements */
-    }   
-
-    .navbar-brand img {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 50%;
-    }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      margin-left: 30px;
-    }
-
-    .main-title {
-      font-weight: bold;
-      font-size: 25px;
-      color: #ffd700;
-    }
-
-    .subtitle {
-      font-size: 20px;
-      color: white;
-      margin-top: -3px;
-    }
-
-    .navbar-nav .nav-link {
-      color: white;
-      font-weight: 800;
-      margin-right: 40px;
-    }
-
-    .yellow-line {
-      height: 5px;
-      background-color: yellow;
     }
 
     /* Headline Section */
@@ -154,56 +107,13 @@
     bottom: 15px;
     right: 15px;
     }
-
-    footer {
-      background-color:  #2c6b2f; /* Dark background for the footer */
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-
-    .footer a {
-      font-weight: 600;
-      color: #ffd700;
-      text-decoration: underline;
-      margin: 0 10px;
-    }
-
-    .footer a:hover {
-      color: #fff;
-    }
-
-    .footer .copyright {
-      margin-top: 10px;
-      font-size: 0.9rem;
-    }
   </style>
 
 </head>
 <body>
 
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="logo.png" alt="Logo" />
-        <div class="brand-text">
-          <div class="main-title">EcoTrack</div>
-          <div class="subtitle">Smarter Waste, Greener Cities</div>
-        </div>
-      </a>
-      <div class="collapse navbar-collapse justify-content-end">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href=" Home.php">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="FAQs.php">FAQs</a></li>
-          <li class="nav-item"><a class="nav-link" href="news.php">News</a></li>
-          <li class="nav-item"><a class="nav-link" href="contacts.php">Contact</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <div class="yellow-line"></div>
+ <?php include 'navbar.php'; ?>
 
   <h2 class="headline">Latest News & Updates</h2>
 <div class="black-line"></div>
@@ -212,7 +122,7 @@
 
     <!-- News Cards -->
     <div class="card">
-      <img src="news1.jpg" alt="Plastic Action Partnership">
+      <img src="https://resource.chemlinked.com.cn/sustainability/articles/mixed-plastics-20210406-by-marina-onokhina-shutterstock-1441540925-web.jpg" alt="Plastic Action Partnership">
       <div class="card-content">
         <h4>Philippines Launches National Plastic Action Partnership to Tackle Plastic Waste and Advance Circular Economy</h4>
         <p>On March 9, 2025, the Department of Environment and Natural Resources (DENR) launched the National Plastic Action Partnership (NPAP), a multi-stakeholder platform designed to foster collaboration across sectors and accelerate the country’s transition to a circular economy.</p>
@@ -221,7 +131,7 @@
     </div>
 
     <div class="card">
-      <img src="news2.jpg" alt="Garbage Debts Manila">
+      <img src="https://media.philstar.com/photos/2024/12/30/6_2024-12-30_19-37-55.jpg" alt="Garbage Debts Manila">
       <div class="card-content">
         <h4>Manila Faces ₱561 Million in Unpaid Debts for Garbage Collection</h4>
         <p>As of January 6, 2025, Manila's garbage contractors reported that the city government has accumulated unpaid debts amounting to P561 million for garbage collection services.</p>
@@ -230,7 +140,7 @@
     </div>
 
     <div class="card">
-      <img src="news3.jpg" alt="MMDA Expo">
+      <img src="https://i0.wp.com/marketmonitor.com.ph/wp-content/uploads/2025/01/6-MMDA.webp?resize=660%2C330&ssl=1" alt="MMDA Expo">
       <div class="card-content">
         <h4>MMDA Boosts Zero Waste Campaign</h4>
         <p>In January 2025, the Metropolitan Manila Development Authority (MMDA) organized the "Road to Zero Waste Expo" in Pasig City. The expo aimed to promote sustainable waste management practices and featured various booths showcasing upcycled products.</p>
@@ -239,7 +149,7 @@
     </div>
 
     <div class="card">
-      <img src="news4.jpg" alt="Solid Waste Import Ban">
+      <img src="https://resource.chemlinked.com.cn/sustainability/articles/garbage-2729608-1280.jpg" alt="Solid Waste Import Ban">
       <div class="card-content">
         <h4>Senate Bill No. 2957 Filed to Ban Solid Waste Imports</h4>
         <p>On January 27, 2025, Senate Bill No. 2957, titled "An Act Banning the Importation of Solid Waste, Providing Penalties for Violations Thereof, and for Other Purposes," was filed in the Philippine Senate. The bill aims to prohibit the importation of solid waste into the country and establish penalties for violations.</p>
@@ -248,7 +158,7 @@
     </div>
 
     <div class="card">
-      <img src="news5.jpg" alt="Traslacion Garbage">
+      <img src="https://i.ytimg.com/vi/GXEMTpakpd0/maxresdefault.jpg" alt="Traslacion Garbage">
       <div class="card-content">
         <h4>Traslacion 2025 Leaves 100 Truckloads of Garbage</h4>
         <p>The annual Traslacion procession in January 2025 resulted in the collection of over 100 truckloads, approximately 400 metric tons, of garbage. This figure highlights the environmental impact of large public events and underscores the need for effective waste management strategies during such occasions.</p>
@@ -257,7 +167,7 @@
     </div>
 
     <div class="card">
-      <img src="news6.jpg" alt="Bacolod Waste Project">
+      <img src="https://files01.pna.gov.ph/category-list/2025/03/12/bacolod-waste-complex-groundbreaking-120325.jpg" alt="Bacolod Waste Project">
       <div class="card-content">
         <h4>Bacolod City Launches ₱160-Million Comprehensive Waste Management Project</h4>
         <p>On March 12, 2025, Bacolod City initiated a PHP 160-million comprehensive waste management project aimed at enhancing the city's solid waste management system. The project includes the establishment of a central material recovery facility and the procurement of equipment to improve waste collection and processing. This initiative is part of the city's efforts to promote environmental sustainability and comply with the Ecological Solid Waste Management Act.</p>
@@ -268,19 +178,8 @@
 
 </div><!-- End of news-grid div-->
 
- <!-- Footer -->
- <div class="black-line"></div>
-  
-  <footer class="footer">
-    <div class="footer-links">
-      <a href="privacy_statement.php">Privacy Statement</a> |
-      <a href="terms_and_condition.php">Terms and Condition</a> |
-      <a href="privacy_policy.php">Privacy Policy</a>
-    </div>
-    <div class="copyright">
-      &copy; 2025 EcoTrack. All Rights Reserved.
-    </div>
-  </footer>
+  <!-- Footer -->
+<?php include 'footer.php'; ?>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
