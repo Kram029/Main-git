@@ -96,9 +96,37 @@ $result = $conn->query($sql);
             font-family: Arial, sans-serif;
         }
 
-        body {
-            background-color: #f2f2f2;
-        }
+          body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('truck1.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
+
+        .container {
+      display: flex;
+      height: calc(100vh - 70px);
+       position: relative;
+       
+    }
+
+    .sidebar {
+      background-color: #ffffff;
+      width: 200px;
+      padding: 20px 10px;
+      border-right: 1px solid #ccc;
+      position: relative;
+    }
 
         header {
       background-color: #2e7d32;
@@ -120,6 +148,8 @@ $result = $conn->query($sql);
         .main {
             flex-grow: 1;
             padding: 30px;
+             position: relative; /* Needed for z-index */
+      background-color: rgba(242, 242, 242, 0.8); 
         }
 
         .welcome {
@@ -171,6 +201,7 @@ $result = $conn->query($sql);
         .container {
             display: flex;
             height: calc(100vh - 70px);
+              position: relative;
         }
 
         .sidebar {
@@ -179,6 +210,7 @@ $result = $conn->query($sql);
             padding: 20px 10px;
             border-right: 1px solid #ccc;
             flex-shrink: 0;
+            position: relative;
         }
 
         .main {
@@ -246,6 +278,8 @@ $result = $conn->query($sql);
     </style>
 </head>
 <body>
+
+<div class="background-image"></div>
 
 <header>
   <div>
