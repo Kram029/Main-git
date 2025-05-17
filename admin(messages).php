@@ -23,8 +23,21 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
         }
 
         body {
-            background-color: #f2f2f2;
-        }
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('truck1.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
 
         header {
       background-color: #2e7d32;
@@ -33,6 +46,7 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
       display: flex;
       justify-content: space-between;
       align-items: center;
+       position: relative; 
     }
 
     header h1 {
@@ -97,6 +111,7 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
         .container {
             display: flex;
             height: calc(100vh - 70px);
+             position: relative; 
         }
 
         .sidebar {
@@ -105,13 +120,27 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
             padding: 20px 10px;
             border-right: 1px solid #ccc;
             flex-shrink: 0;
+             position: relative; 
         }
 
         .main {
             flex-grow: 1;
             padding: 30px;
             overflow-y: auto;
+            position: relative; 
+      background-color: rgba(242, 242, 242, 0.8);
         }
+
+        .footer {
+      text-align: center;
+      font-size: 12px;
+      color: gray;
+      margin-top: 40px;
+    }
+
+    .footer p {
+      margin: 4px 0;
+    }
 
 
 /* Modal consistent with reports page */
@@ -179,6 +208,8 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
 </head>
 <body>
 
+<div class="background-image"></div>
+
 <header>
   <div>
     <h1>EcoTrack</h1>
@@ -223,6 +254,9 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
             <?php endwhile; ?>
         </tbody>
     </table>
+    <div class="footer">
+      <p>&copy; 2023 EcoTrack. All rights reserved.</p>
+      <p>Developed by Team EcoTrack</p>
   </div>
 </div>
 
@@ -242,6 +276,8 @@ $result = $conn->query("SELECT * FROM contacts ORDER BY created_at DESC");
     </div>
   </div>
 </div>
+
+
 
 <script>
 function openModal(name, email, message) {
