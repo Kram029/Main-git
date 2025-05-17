@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($selectedDatetime < $currentDatetime) {
              echo "<script>alert('Schedule datetime cannot be in the past.');</script>";
-            exit();
+             exit();
         }
         // Continue with schedule adding logic...
         $stmt = $conn->prepare("CALL AddSchedule(?, ?, ?, ?)");
@@ -54,6 +54,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['delete_schedule'])) {
         $stmt = $conn->prepare("CALL DeleteSchedule(?)");
         $stmt->bind_param("i", $_POST['delete_id']);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    if (isset($_POST['update_schedule'])) {
+        $id = $_POST['edit_id'];
+        $barangay = trim($_POST['barangay']);
+        if (!preg_match("/^[A-Za-z\s\-]{2,50}$/", $barangay)) {
+            die("Invalid Barangay name for update. Only letters, spaces, and hyphens allowed (2-50 chars).");
+        }
+        $date = $_POST['date'];
+        $time = $_POST['time'];
+        $status = $_POST['status'];
+
+        $selectedDatetime = strtotime("$date $time");
+        $currentDatetime = time();
+
+        if ($selectedDatetime < $currentDatetime) {
+            echo "<script>alert('Schedule datetime cannot be in the past.');</script>";
+            exit();
+        }
+
+        $stmt = $conn->prepare("UPDATE schedules SET barangay = ?, date = ?, time = ?, status = ? WHERE id = ?");
+        $stmt->bind_param("ssssi", $barangay, $date, $time, $status, $id);
         $stmt->execute();
         $stmt->close();
     }
@@ -82,7 +106,23 @@ if (isset($_GET['edit_id'])) {
             padding: 0;
             font-family: Arial, sans-serif;
         }
-        body { background-color: #f2f2f2; }
+        body { background-color: #f2f2f2; }  body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .background-image {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('truck1.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
+
 
         header {
             background-color: #2e7d32;
@@ -91,6 +131,7 @@ if (isset($_GET['edit_id'])) {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative; 
         }
 
         header h1 { font-size: 32px; }
@@ -100,6 +141,7 @@ if (isset($_GET['edit_id'])) {
         .container {
             display: flex;
             height: calc(100vh - 70px);
+            position: relative; 
         }
 
         .sidebar {
@@ -107,12 +149,15 @@ if (isset($_GET['edit_id'])) {
             width: 200px;
             padding: 20px 10px;
             border-right: 1px solid #ccc;
+            position: relative; 
         }
 
         .main {
             flex-grow: 1;
             padding: 30px;
             overflow-y: auto;
+            position: relative; 
+      background-color: rgba(242, 242, 242, 0.8);
         }
 
         .welcome {
@@ -239,10 +284,12 @@ if (isset($_GET['edit_id'])) {
             border: none;
             border-radius: 5px;
         }
-        
+
     </style>
 </head>
 <body>
+
+<div class="background-image"></div>
 
 
 <header>
@@ -280,19 +327,19 @@ if (isset($_GET['edit_id'])) {
             if ($result->num_rows > 0) {
                 while ($schedule = $result->fetch_assoc()) {
                     echo "<tr>
-                        <td>{$schedule['id']}</td>
-                        <td>{$schedule['barangay']}</td>
-                        <td>{$schedule['date']}</td>
-                        <td>" . date("g:i A", strtotime($schedule['time'])) . "</td>
-                        <td>{$schedule['status']}</td>
-                        <td class='actions'>
-                            <a href='?edit_id={$schedule['id']}'>Edit</a>
-                            <form method='post' style='display:inline;' onsubmit='return confirm(\"Are you sure?\");'>
-                                <input type='hidden' name='delete_id' value='{$schedule['id']}'>
-                                <button type='submit' name='delete_schedule'>Delete</button>
-                            </form>
-                        </td>
-                    </tr>";
+                            <td>{$schedule['id']}</td>
+                            <td>{$schedule['barangay']}</td>
+                            <td>{$schedule['date']}</td>
+                            <td>" . date("g:i A", strtotime($schedule['time'])) . "</td>
+                            <td>{$schedule['status']}</td>
+                            <td class='actions'>
+                                <a href='?edit_id={$schedule['id']}'>Edit</a>
+                                <form method='post' style='display:inline;' onsubmit='return confirm(\"Are you sure?\");'>
+                                    <input type='hidden' name='delete_id' value='{$schedule['id']}'>
+                                    <button type='submit' name='delete_schedule'>Delete</button>
+                                </form>
+                            </td>
+                        </tr>";
                 }
             } else {
                 echo "<tr><td colspan='6'>No schedules found.</td></tr>";
@@ -308,7 +355,6 @@ if (isset($_GET['edit_id'])) {
     </div>
 </div>
 
-<!-- Add Modal -->
 <div class="modal-overlay" id="addModal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -344,15 +390,15 @@ if (isset($_GET['edit_id'])) {
             <div class="modal-header">
                 <h2>Edit Pickup Schedule</h2>
                 <form method="get" style="margin:0;">
-                    <button class="close-btn" title="Close" name="cancel" value="1">&times;</button>
+                    <button class="close-btn" title="Close" name="cancel" value="1" onclick="window.location.href='<?= strtok($_SERVER["REQUEST_URI"], '?') ?>'">&times;</button>
                 </form>
             </div>
             <form method="post">
                 <input type="hidden" name="edit_id" value="<?= $editData['id'] ?>">
 
                 <label>Barangay:</label>
-                <p style="text-align:left;"><?= htmlspecialchars($editData['barangay']) ?></p>
-                <input type="hidden" name="barangay" value="<?= htmlspecialchars($editData['barangay']) ?>">
+                <input type="text" name="barangay" value="<?= htmlspecialchars($editData['barangay']) ?>" pattern="[A-Za-z\s\-]{2,50}" required
+                       title="Barangay must be 2-50 letters, spaces, or hyphens only.">
 
                 <label>Date:</label>
                 <input type="date" name="date" value="<?= $editData['date'] ?>" required min="<?= date('Y-m-d'); ?>">
@@ -374,51 +420,54 @@ if (isset($_GET['edit_id'])) {
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById("addScheduleFormElement");
-        const barangay = document.getElementById("barangay");
-        const dateInput = form.querySelector("input[name='date']");
+        const addForm = document.getElementById("addScheduleFormElement");
+        const barangayInput = document.getElementById("barangay");
+        const dateInput = addForm.querySelector("input[name='date']");
         const errorDiv = document.getElementById("addScheduleError");
 
         errorDiv.style.display = "none";
 
-        form.addEventListener("submit", function (e) {
+        addForm.addEventListener("submit", function (e) {
             let hasError = false;
             const today = new Date().toISOString().split('T')[0];
 
             const pattern = /^[A-Za-z\s\-]{2,50}$/;
-            if (!pattern.test(barangay.value.trim())) {
-                barangay.setCustomValidity("Invalid Barangay name.");
-                barangay.reportValidity();
+            if (!pattern.test(barangayInput.value.trim())) {
+                barangayInput.setCustomValidity("Invalid Barangay name.");
+                barangayInput.reportValidity();
                 e.preventDefault();
                 hasError = true;
             } else {
-                barangay.setCustomValidity("");
+                barangayInput.setCustomValidity("");
             }
 
-          const selectedDate = dateInput.value;
-const selectedTime = form.querySelector("input[name='time']").value;
+            const selectedDate = dateInput.value;
+            const selectedTime = addForm.querySelector("input[name='time']").value;
 
-if (selectedDate < today) {
-    errorDiv.textContent = "Schedule date cannot be in the past.";
-    errorDiv.style.display = "block";
-    dateInput.setCustomValidity("Date must not be in the past.");
-    dateInput.reportValidity();
-    e.preventDefault();
-    hasError = true;
-} else if (selectedDate === today) {
-    const currentTime = new Date().toTimeString().slice(0,5); // format: HH:MM
-    if (selectedTime < currentTime) {
-        errorDiv.textContent = "Time must not be in the past for today's schedule.";
-        errorDiv.style.display = "block";
-        form.querySelector("input[name='time']").setCustomValidity("Invalid time.");
-        form.querySelector("input[name='time']").reportValidity();
-        e.preventDefault();
-        hasError = true;
-    }
-}
+            if (selectedDate < today) {
+                errorDiv.textContent = "Schedule date cannot be in the past.";
+                errorDiv.style.display = "block";
+                dateInput.setCustomValidity("Date must not be in the past.");
+                dateInput.reportValidity();
+                e.preventDefault();
+                hasError = true;
+            } else if (selectedDate === today) {
+                const currentTime = new Date().toTimeString().slice(0,5); // format: HH:MM
+                if (selectedTime < currentTime) {
+                    errorDiv.textContent = "Time must not be in the past for today's schedule.";
+                    errorDiv.style.display = "block";
+                    addForm.querySelector("input[name='time']").setCustomValidity("Invalid time.");
+                    addForm.querySelector("input[name='time']").reportValidity();
+                    e.preventDefault();
+                    hasError = true;
+                }
+            }
 
+            if (hasError) {
+                e.preventDefault();
+            }
         });
-    }); 
+    });
 
     function openAddModal() {
         document.getElementById('addModal').style.display = 'flex';
