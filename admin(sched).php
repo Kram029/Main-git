@@ -85,12 +85,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: " . strtok($_SERVER["REQUEST_URI"], '?'));
     exit();
 }
+$barangayOptions = [];
+$result = $conn->query("SELECT barangay_name FROM table_barangay ORDER BY barangay_name ASC");
+while ($row = $result->fetch_assoc()) {
+    $barangayOptions[] = $row['barangay_name'];
+}
+
 
 $editData = null;
 if (isset($_GET['edit_id'])) {
     $id = intval($_GET['edit_id']);
     $res = $conn->query("SELECT * FROM schedules WHERE id = $id");
     $editData = $res->fetch_assoc();
+
 }
 ?>
 
@@ -364,8 +371,13 @@ if (isset($_GET['edit_id'])) {
         <div id="addScheduleError" style="color: red; margin-bottom: 10px; display: none;"></div>
         <form method="post" id="addScheduleFormElement">
             <label>Barangay:</label>
-            <input type="text" id="barangay" name="barangay" pattern="[A-Za-z\s\-]{2,50}" required
-                   title="Barangay must be 2-50 letters, spaces, or hyphens only.">
+            <select id="barangay" name="barangay" required style="width: 100%;">
+    <option value="">Select Barangay</option>
+    <?php foreach ($barangayOptions as $b): ?>
+        <option value="<?= htmlspecialchars($b) ?>"><?= htmlspecialchars($b) ?></option>
+    <?php endforeach; ?>
+</select>
+
 
             <label>Date:</label>
             <input type="date" name="date" required min="<?= date('Y-m-d'); ?>">
@@ -382,6 +394,7 @@ if (isset($_GET['edit_id'])) {
             <button type="submit" name="add_schedule">Add Schedule</button>
         </form>
     </div>
+
 </div>
 
 <?php if ($editData): ?>
@@ -397,8 +410,15 @@ if (isset($_GET['edit_id'])) {
                 <input type="hidden" name="edit_id" value="<?= $editData['id'] ?>">
 
                 <label>Barangay:</label>
-                <input type="text" name="barangay" value="<?= htmlspecialchars($editData['barangay']) ?>" pattern="[A-Za-z\s\-]{2,50}" required
-                       title="Barangay must be 2-50 letters, spaces, or hyphens only.">
+                <select id="edit-barangay" name="barangay" required style="width: 100%;">
+                    <option value="">Select Barangay</option>
+                        <?php foreach ($barangayOptions as $b): ?>
+                        <option value="<?= htmlspecialchars($b) ?>" <?= $editData['barangay'] == $b ? 'selected' : '' ?>>
+                         <?= htmlspecialchars($b) ?>
+                      </option>
+                     <?php endforeach; ?>
+                </select>
+
 
                 <label>Date:</label>
                 <input type="date" name="date" value="<?= $editData['date'] ?>" required min="<?= date('Y-m-d'); ?>">
@@ -466,6 +486,21 @@ if (isset($_GET['edit_id'])) {
             if (hasError) {
                 e.preventDefault();
             }
+
+            $(document).ready(function () {
+   
+    });
+});
+
+ $('#barangay').select2({
+        placeholder: "Select or type barangay",
+        allowClear: true
+    });
+
+    $('#edit-barangay').select2({
+        placeholder: "Select or type barangay",
+        allowClear: true
+
         });
     });
 
